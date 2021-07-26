@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/scheduleFragment">
+
+    <fragment
+        android:id="@+id/addChildFragment"
+        android:name="org.kimaita.vaccinationscheduler.AddChildFragment"
+        android:label="Add Child"
+        tools:layout="@layout/fragment_add_child" >
+        <action
+            android:id="@+id/action_addChildFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="org.kimaita.vaccinationscheduler.ProfileFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_addChildFragment"
+            app:destination="@id/addChildFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/scheduleFragment"
+        android:name="org.kimaita.vaccinationscheduler.ScheduleFragment"
+        android:label="@string/schedule"
+        tools:layout="@layout/fragment_schedule" />
+    <fragment
+        android:id="@+id/vaccinesFragment"
+        android:name="org.kimaita.vaccinationscheduler.VaccinesFragment"
+        android:label="@string/vaccines"
+        tools:layout="@layout/fragment_vaccines" />
+    <fragment
+        android:id="@+id/messagesFragment"
+        android:name="org.kimaita.vaccinationscheduler.MessagesFragment"
+        android:label="@string/messages"
+        tools:layout="@layout/fragment_messages" />
+    <activity
+        android:id="@+id/authActivity"
+        android:name="org.kimaita.vaccinationscheduler.AuthActivity"
+        android:label="activity_auth"
+        tools:layout="@layout/activity_auth" />
+</navigation>

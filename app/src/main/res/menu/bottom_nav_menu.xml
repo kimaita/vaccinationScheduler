@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/scheduleFragment"
+        android:icon="@drawable/ic_schedule_24"
+        android:title="@string/schedule" />
+
+    <item
+        android:id="@+id/messagesFragment"
+        android:icon="@drawable/ic_messages_24"
+        android:title="@string/messages" />
+
+    <item
+        android:id="@+id/vaccinesFragment"
+        android:icon="@drawable/ic_vaccines_24"
+        android:title="@string/vaccines" />
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile_24"
+        android:title="@string/profile" />
+</menu>
