@@ -38,4 +38,20 @@ public class DatabaseUtils {
         st.setInt(1, natID);
         return st.executeQuery();
     }
+
+    public static void insertChild(String name, long dob, int parentID, Connection conn) throws SQLException {
+        String ins = "INSERT into child(child_name, dob, parent) VALUES(?,?,?)";
+        st = conn.prepareStatement(ins);
+        st.setString(1, name);
+        st.setLong(2, dob);
+        st.setInt(3, parentID);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static ResultSet getVaccines() throws SQLException {
+        String sel = "SELECT name FROM vaccine";
+        st = createConnection().prepareStatement(sel);
+        return st.executeQuery();
+    }
 }

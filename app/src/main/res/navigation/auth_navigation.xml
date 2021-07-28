@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_logInFragment2_to_signUpFragment2"
             app:destination="@id/signUpFragment2" />
+        <action
+            android:id="@+id/action_logInFragment2_to_mainActivity"
+            app:destination="@id/mainActivity" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment2"
@@ -27,5 +30,7 @@
         android:id="@+id/mainActivity"
         android:name="org.kimaita.vaccinationscheduler.MainActivity"
         android:label="activity_main"
-        tools:layout="@layout/activity_main" />
+        tools:layout="@layout/activity_main" >
+
+    </activity>
 </navigation>

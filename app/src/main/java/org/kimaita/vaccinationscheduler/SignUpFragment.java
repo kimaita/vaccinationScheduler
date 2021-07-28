@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,22 +19,33 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.kimaita.vaccinationscheduler.databinding.FragmentSignUpBinding;
 
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import static org.kimaita.vaccinationscheduler.Constants.usrCred;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredNatIDKey;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredPINKey;
+import static org.kimaita.vaccinationscheduler.NetworkUtils.isInternetAvailable;
 
 public class SignUpFragment extends Fragment {
 
     FragmentSignUpBinding binding;
-    public static final String usrCred = "userCredentials";
-    EditText textName, textEmail, textPhone, textPIN, textNatID;
+
+    String name, phone, email;
+    int id, pin;
+    TextInputEditText textName, textEmail, textPhone, textPIN, textNatID;
+    TextInputLayout layoutName, layoutEmail, layoutPhone, layoutPIN, layoutID;
     MaterialTextView textStatus;
     MaterialButton btnSignUp, btnLogIn;
-    private ProgressDialog pDialog;
-    JSONParser jsonParser = new JSONParser();
+    ProgressDialog pDialog;
     SharedPreferences sharedpreferences;
 
     public SignUpFragment() {
@@ -47,7 +59,7 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedpreferences = getActivity().getSharedPreferences(usrCred, Context.MODE_PRIVATE);
+
     }
 
     @Override
@@ -63,119 +75,107 @@ public class SignUpFragment extends Fragment {
         textPhone = binding.signupPhone;
         btnSignUp = binding.btnSignUp;
         btnLogIn = binding.loginSignUpBtn;
-textStatus = binding.textStatus;
-        btnSignUp.setOnClickListener(v -> {
-            fieldsFilled();
-            new SignUpAsyncTask().execute();
-        });
-        btnLogIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.action_signUpFragment2_to_logInFragment2);
-            }
+        textStatus = binding.textStatus;
+        layoutName = binding.layoutSignupName;
+        layoutPhone = binding.layoutSignupPhone;
+        layoutEmail = binding.layoutSignupEmail;
+        layoutID = binding.layoutSignupNatId;
+        layoutPIN = binding.layoutSignupPin;
+
+        name = textName.getText().toString();
+        email = textEmail.getText().toString();
+        phone = textPhone.getText().toString();
+        id = Integer.parseInt(textNatID.getText().toString());
+        pin = Integer.parseInt(textPIN.getText().toString());
+        
+        isInternetAvailable().subscribe((hasInternet) -> {
+            btnSignUp.setEnabled(hasInternet);
         });
 
+        btnSignUp.setOnClickListener(v -> {
+            if(fieldsFilled()){
+                new SignUpAsyncTask().execute();
+            }else{
+                textStatus.setTextColor(Color.RED);
+                textStatus.setText(R.string.fill_fields);
+            }
+
+        });
+        btnLogIn.setOnClickListener(v -> Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.action_signUpFragment2_to_logInFragment2));
 
         return root;
     }
 
-    private void fieldsFilled() {
+    private boolean fieldsFilled() {
+
         if (TextUtils.isEmpty(textName.getText())) {
-            textName.setError(getString(R.string.empty_edittext));
+            layoutName.setError(getString(R.string.empty_edittext));
+            return false;
         }
         if (TextUtils.isEmpty(textEmail.getText())) {
-            textName.setError(getString(R.string.empty_edittext));
+            layoutEmail.setError(getString(R.string.empty_edittext));
+            return false;
         }
         if (TextUtils.isEmpty(textPhone.getText())) {
-            textName.setError(getString(R.string.empty_edittext));
+            layoutPhone.setError(getString(R.string.empty_edittext));
+            return false;
         }
         if (TextUtils.isEmpty(textNatID.getText())) {
-            textName.setError(getString(R.string.empty_edittext));
+            layoutID.setError(getString(R.string.empty_edittext));
+            return false;
         }
         if (TextUtils.isEmpty(textPIN.getText())) {
-            textName.setError(getString(R.string.empty_edittext));
+            layoutPIN.setError(getString(R.string.empty_edittext));
+            return false;
         }
+        return true;
     }
 
     @SuppressLint("StaticFieldLeak")
     public class SignUpAsyncTask extends AsyncTask<String, String, String> {
 
-        /*@Override
+        @Override
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(getContext());
-            pDialog.setMessage("Registering..");
+            pDialog.setMessage("...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
         }
-*/
+
         @Override
         protected String doInBackground(String... args) {
-            String name, phone, email;
-            int id, pin;
 
-            name = textName.getText().toString();
-            email = textEmail.getText().toString();
-            phone = textPhone.getText().toString();
-            id = Integer.parseInt(textNatID.getText().toString());
-            pin = Integer.parseInt(textPIN.getText().toString());
             Connection con = null;
-            //textStatus.setText(name+" "+email+" "+id);
             try {
                 con = DatabaseUtils.createConnection();
+                Log.i("Database Connection", "Successful connection");
+                pDialog.setMessage("Connecting...");
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
+                Log.e("Database Connection", "Failed connection", throwables);
+                pDialog.dismiss();
+                Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_LONG).show();
             }
             try {
+                assert con != null;
                 DatabaseUtils.insertUser(name, email, phone, id, pin, con);
+                Log.i("Database Insertion", "Successful insertion");
+                pDialog.setMessage("Writing...");
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
-                //Log.e("Insert Error", "problem",throwables);
-                textStatus.setText(throwables.getMessage());
-            }
-            // Building Parameters
-            /*List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("name", name));
-            params.add(new BasicNameValuePair("number", phone));
-            params.add(new BasicNameValuePair("email", email));
-            params.add(new BasicNameValuePair("natID", id));
-            params.add(new BasicNameValuePair("pin", pin));
-*/
-            // getting JSON Object
-            // Note that create product url accepts POST method
-           /* JSONObject json = jsonParser.makeHttpRequest(url_addParent,
-                    "POST", params);
-            // check log cat for response
-            if (json != null) {
-                Log.d("Create Response", json.toString());
-                // check for success tag
-                try {
-                    int success = json.getInt(TAG_SUCCESS);
-                    if (success == 1) {
-                        // successfully created product
-                        SharedPreferences.Editor editor = sharedpreferences.edit();
-                        editor.putInt(usrCredPINKey, Integer.parseInt(pin));
-                        editor.putInt(usrCredNatIDKey, Integer.parseInt(id));
-                        editor.apply();
-                    } else {
-                        // failed to create product
-                        failedSignUp();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
+                Log.e("Database Insertion", "Failed insertion", throwables);
+                pDialog.dismiss();
                 failedSignUp();
             }
-*/
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
             // dismiss the dialog once done
-            //pDialog.dismiss();
+            pDialog.dismiss();
         }
     }
 
@@ -188,6 +188,15 @@ textStatus = binding.textStatus;
                     }
                 });
         snackbar.show();
+    }
+
+    private void successfulSignUp() {
+        sharedpreferences = getActivity().getSharedPreferences(usrCred, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putInt(usrCredNatIDKey, id);
+        editor.putInt(usrCredPINKey, pin);
+        editor.apply();
+        Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.action_signUpFragment2_to_logInFragment2);
     }
 }
 

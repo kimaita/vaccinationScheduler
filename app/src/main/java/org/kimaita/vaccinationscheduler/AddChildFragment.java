@@ -1,64 +1,127 @@
 package org.kimaita.vaccinationscheduler;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AddChildFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
+
+import org.kimaita.vaccinationscheduler.databinding.FragmentAddChildBinding;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class AddChildFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    FragmentAddChildBinding binding;
+    TextInputLayout nameLayout, dobLayout;
+    TextInputEditText textName, textDOB;
+    MaterialButton btnAddChild;
+    MaterialTextView textStatus;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public AddChildFragment() { /*Required empty public constructor*/ }
 
-    public AddChildFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddChildFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddChildFragment newInstance(String param1, String param2) {
-        AddChildFragment fragment = new AddChildFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static AddChildFragment newInstance() {
+        return new AddChildFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_child, container, false);
+        binding = FragmentAddChildBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        nameLayout = binding.layoutAddchildName;
+        dobLayout = binding.layoutAddchildDob;
+        textName = binding.addchildName;
+        textDOB = binding.addchildDob;
+        btnAddChild = binding.btnAddchild;
+        textStatus = binding.addchildTextStatus;
+        btnAddChild.setOnClickListener(v -> {
+            if(fieldsFilled()){
+                new AddChildAsyncTask().execute();
+            }else{
+                textStatus.setText(getString(R.string.fill_fields));
+            }
+        });
+        return root;
     }
+
+    private boolean fieldsFilled() {
+        boolean filled = true;
+        if(TextUtils.isEmpty(textName.getText())){
+            nameLayout.setError(getString(R.string.empty_edittext));
+            filled = false;
+        }
+        if(TextUtils.isEmpty(textDOB.getText())){
+            dobLayout.setError(getString(R.string.empty_edittext));
+            filled = false;
+        }
+        return filled;
+    }
+
+
+    @SuppressLint("StaticFieldLeak")
+    public class AddChildAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            String name;
+            long dob;
+            int parentID = 0;
+
+            name = textName.getText().toString();
+            dob = Long.parseLong(textName.getText().toString());
+            //parentID = Integer.parseInt()
+
+            Connection con = null;
+            try {
+                con = DatabaseUtils.createConnection();
+                Log.i("Database Connection", "Successful connection");
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                Log.e("Database Connection", "Failed connection", throwables);
+                Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_LONG).show();
+            }
+            try {
+                assert con != null;
+                DatabaseUtils.insertChild(name, dob, parentID, con);
+                Log.i("Database Insertion", "Successful insertion");
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                Log.e("Database Insertion", "Failed insertion", throwables);
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+
+        }
+    }
+
 }

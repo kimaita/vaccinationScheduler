@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_addChildFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <argument
+            android:name="parentID"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"

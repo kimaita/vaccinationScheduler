@@ -3,40 +3,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".AddChildFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="300dp"
+        android:id="@+id/layout_addchild_name"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp">
+        android:layout_marginVertical="8dp"
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/addchild_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint="@string/name"
             android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_addchild_dob"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="300dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp">
+        android:layout_marginVertical="8dp"
+        app:errorEnabled="true"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_date_24">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="300dp"
+            android:id="@+id/addchild_dob"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/ic_date_24"
-            android:hint="Date of Birth" />
+            android:inputType="date"
+            android:hint="@string/date_of_birth" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_addchild"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="16dp"
-        android:text="ADD" />
+        android:text="@string/add" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/addchild_textStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:padding="4dp"
+        android:textAlignment="center" />
 </LinearLayout>

@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 
 import org.kimaita.vaccinationscheduler.databinding.FragmentLogInBinding;
 
@@ -31,15 +34,15 @@ import static org.kimaita.vaccinationscheduler.Constants.usrCredPINKey;
 public class LogInFragment extends Fragment {
 
     FragmentLogInBinding binding;
-    EditText textNatID, textPIN;
+    TextInputEditText textNatID, textPIN;
+    TextInputLayout layoutID, layoutPIN;
     MaterialButton btnLogIn;
+    MaterialTextView textStatus;
     private SharedPreferences sharedpreferences;
 
-    public LogInFragment() {
-        // Required empty public constructor
-    }
+    public LogInFragment() {        /* Required empty public constructor*/    }
 
-    public static LogInFragment newInstance(String param1, String param2) {
+    public static LogInFragment newInstance() {
         return new LogInFragment();
     }
 
@@ -55,21 +58,20 @@ public class LogInFragment extends Fragment {
         View root = binding.getRoot();
         textNatID = binding.loginNatID;
         textPIN = binding.loginPin;
+        layoutID = binding.layoutLoginNatID;
+        layoutPIN = binding.layoutLoginPin;
         btnLogIn = binding.loginBtn;
+        textStatus = binding.loginTextStatus;
 
-        btnLogIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new FetchAsyncTask().execute();
-            }
-        });
+        btnLogIn.setOnClickListener(v -> new FetchAsyncTask().execute());
+
         return root;
     }
 
     public class FetchAsyncTask extends AsyncTask<Void, Void, Map<String, String>> {
         @Override
         protected Map<String, String> doInBackground(Void... voids) {
-            int id = Integer.parseInt(String.valueOf(textPIN.getText()));
+            int id = Integer.parseInt(String.valueOf(textNatID.getText()));
             Map<String, String> info = new HashMap<>();
             try {
                 ResultSet rs = DatabaseUtils.userDets(id);
@@ -91,8 +93,11 @@ public class LogInFragment extends Fragment {
             if (!result.isEmpty()) {
                 if (textPIN.getText().toString().equals(result.get("pin"))){
                     successfulLogin();
+                }else{
+                    layoutPIN.setError(getString(R.string.invalid_pin));
                 }
             }else{
+                layoutID.setError(getString(R.string.invalid_username));
                 failedLogin();
             }
         }
