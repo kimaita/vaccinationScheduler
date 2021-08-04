@@ -1,21 +1,24 @@
-package org.kimaita.vaccinationscheduler;
+package org.kimaita.vaccinationscheduler.models;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     String username;
     String email;
     String phoneNumber;
     int pin;
     int natID;
+    int dbID;
 
-    public User(int natID, String username, String email, String phoneNumber, int pin){
-
+    /*public User(int dbID, int natID, String username, String email, String phoneNumber, int pin){
+        this.dbID = dbID;
         this.natID = natID;
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.pin = pin;
-    }
+    }*/
 
     public void setUsername(String username) {
         this.username = username;
@@ -35,6 +38,14 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setDbID(int dbID) {
+        this.dbID = dbID;
+    }
+
+    public int getDbID() {
+        return dbID;
     }
 
     public int getNatID() {

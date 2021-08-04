@@ -5,7 +5,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import static org.kimaita.vaccinationscheduler.Constants.usrCred;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
 
 public class AuthActivity extends AppCompatActivity {
 
@@ -18,5 +23,10 @@ public class AuthActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
         navController.setGraph(R.navigation.auth_navigation);
 
+        SharedPreferences sharedpreferences = getSharedPreferences(usrCred, Context.MODE_PRIVATE);
+
+        if(sharedpreferences.getBoolean(usrCredCurrKey, false)){
+            navController.navigate(R.id.logInFragment2);
+        }
     }
 }

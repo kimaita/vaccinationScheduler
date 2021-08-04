@@ -1,19 +1,21 @@
 package org.kimaita.vaccinationscheduler;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -22,7 +24,9 @@ import com.google.android.material.textview.MaterialTextView;
 import org.kimaita.vaccinationscheduler.databinding.FragmentAddChildBinding;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 public class AddChildFragment extends Fragment {
 
@@ -31,6 +35,9 @@ public class AddChildFragment extends Fragment {
     TextInputEditText textName, textDOB;
     MaterialButton btnAddChild;
     MaterialTextView textStatus;
+    int parentID;
+    String name;
+    Date dob;
 
     public AddChildFragment() { /*Required empty public constructor*/ }
 
@@ -54,29 +61,64 @@ public class AddChildFragment extends Fragment {
         textDOB = binding.addchildDob;
         btnAddChild = binding.btnAddchild;
         textStatus = binding.addchildTextStatus;
+
+        parentID = AddChildFragmentArgs.fromBundle(getArguments()).getParentID();
+
+        dobLayout.setEndIconOnClickListener(v -> setDatePicker().show(requireActivity().getSupportFragmentManager(), "DoB"));
+
         btnAddChild.setOnClickListener(v -> {
-            if(fieldsFilled()){
+            if (fieldsFilled()) {
                 new AddChildAsyncTask().execute();
-            }else{
+            } else {
+                textStatus.setTextColor(Color.RED);
                 textStatus.setText(getString(R.string.fill_fields));
             }
         });
         return root;
     }
 
+    private MaterialDatePicker<Long> setDatePicker() {
+
+        final int CC_EXP_YEARS_COUNT = 10;
+        // Get Current Date
+        final Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+
+        // Build constraints.
+        c.set(Calendar.MONTH, mMonth + 9);
+        long inNineMonths = c.getTimeInMillis();
+        c.set(Calendar.YEAR, mYear - CC_EXP_YEARS_COUNT);
+        long tenYears = c.getTimeInMillis();
+
+        CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder()
+                .setStart(tenYears)
+                .setEnd(inNineMonths);
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Date of Birth")
+                .setSelection(System.currentTimeMillis())
+                .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
+                .setCalendarConstraints(constraintsBuilder.build())
+                .build();
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            dob = new Date(selection);
+            textDOB.setText(dob.toString());
+        });
+        return datePicker;
+    }
+
     private boolean fieldsFilled() {
         boolean filled = true;
-        if(TextUtils.isEmpty(textName.getText())){
+        if (TextUtils.isEmpty(textName.getText())) {
             nameLayout.setError(getString(R.string.empty_edittext));
             filled = false;
         }
-        if(TextUtils.isEmpty(textDOB.getText())){
+        if (TextUtils.isEmpty(textDOB.getText())) {
             dobLayout.setError(getString(R.string.empty_edittext));
             filled = false;
         }
         return filled;
     }
-
 
     @SuppressLint("StaticFieldLeak")
     public class AddChildAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -88,22 +130,18 @@ public class AddChildFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            String name;
-            long dob;
-            int parentID = 0;
-
             name = textName.getText().toString();
-            dob = Long.parseLong(textName.getText().toString());
-            //parentID = Integer.parseInt()
+            //dob = Long.parseLong(textName.getText().toString());
 
             Connection con = null;
+
             try {
                 con = DatabaseUtils.createConnection();
                 Log.i("Database Connection", "Successful connection");
             } catch (SQLException throwables) {
+                cancel(true);
                 throwables.printStackTrace();
                 Log.e("Database Connection", "Failed connection", throwables);
-                Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_LONG).show();
             }
             try {
                 assert con != null;
@@ -118,9 +156,15 @@ public class AddChildFragment extends Fragment {
         }
 
         @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-
+            Navigation.findNavController(getView()).navigate(R.id.action_addChildFragment_to_profileFragment);
         }
     }
 

@@ -2,8 +2,6 @@ package org.kimaita.vaccinationscheduler;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -25,14 +22,9 @@ import com.google.android.material.textview.MaterialTextView;
 
 import org.kimaita.vaccinationscheduler.databinding.FragmentSignUpBinding;
 
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.kimaita.vaccinationscheduler.Constants.usrCred;
-import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
-import static org.kimaita.vaccinationscheduler.Constants.usrCredNatIDKey;
-import static org.kimaita.vaccinationscheduler.Constants.usrCredPINKey;
 import static org.kimaita.vaccinationscheduler.NetworkUtils.isInternetAvailable;
 
 public class SignUpFragment extends Fragment {
@@ -46,7 +38,6 @@ public class SignUpFragment extends Fragment {
     MaterialTextView textStatus;
     MaterialButton btnSignUp, btnLogIn;
     ProgressDialog pDialog;
-    SharedPreferences sharedpreferences;
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -59,7 +50,6 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -82,28 +72,35 @@ public class SignUpFragment extends Fragment {
         layoutID = binding.layoutSignupNatId;
         layoutPIN = binding.layoutSignupPin;
 
-        name = textName.getText().toString();
-        email = textEmail.getText().toString();
-        phone = textPhone.getText().toString();
-        id = Integer.parseInt(textNatID.getText().toString());
-        pin = Integer.parseInt(textPIN.getText().toString());
-        
-        isInternetAvailable().subscribe((hasInternet) -> {
-            btnSignUp.setEnabled(hasInternet);
-        });
-
         btnSignUp.setOnClickListener(v -> {
-            if(fieldsFilled()){
+            //internetCheck();
+            if (fieldsFilled()) {
                 new SignUpAsyncTask().execute();
-            }else{
+            } else {
                 textStatus.setTextColor(Color.RED);
                 textStatus.setText(R.string.fill_fields);
             }
 
         });
-        btnLogIn.setOnClickListener(v -> Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.action_signUpFragment2_to_logInFragment2));
+        btnLogIn.setOnClickListener(v -> Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.logInFragment2));
 
         return root;
+    }
+
+    private void internetCheck() {
+        isInternetAvailable().subscribe((hasInternet) -> {
+            btnSignUp.setEnabled(hasInternet);
+            if (!hasInternet) {
+                Snackbar snackbar = Snackbar.make(binding.getRoot(), "No Internet Connection.", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                internetCheck();
+                            }
+                        });
+                snackbar.show();
+            }
+        });
     }
 
     private boolean fieldsFilled() {
@@ -146,6 +143,11 @@ public class SignUpFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... args) {
+            name = textName.getText().toString();
+            email = textEmail.getText().toString();
+            phone = textPhone.getText().toString();
+            id = Integer.parseInt(textNatID.getText().toString());
+            pin = Integer.parseInt(textPIN.getText().toString());
 
             Connection con = null;
             try {
@@ -155,6 +157,7 @@ public class SignUpFragment extends Fragment {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 Log.e("Database Connection", "Failed connection", throwables);
+                cancel(true);
                 pDialog.dismiss();
                 Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_LONG).show();
             }
@@ -170,6 +173,12 @@ public class SignUpFragment extends Fragment {
                 failedSignUp();
             }
             return null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
@@ -190,13 +199,5 @@ public class SignUpFragment extends Fragment {
         snackbar.show();
     }
 
-    private void successfulSignUp() {
-        sharedpreferences = getActivity().getSharedPreferences(usrCred, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putInt(usrCredNatIDKey, id);
-        editor.putInt(usrCredPINKey, pin);
-        editor.apply();
-        Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.action_signUpFragment2_to_logInFragment2);
-    }
 }
 

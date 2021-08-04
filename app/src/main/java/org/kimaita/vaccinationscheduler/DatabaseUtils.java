@@ -1,8 +1,7 @@
 package org.kimaita.vaccinationscheduler;
 
-import android.util.Log;
-
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,11 +38,11 @@ public class DatabaseUtils {
         return st.executeQuery();
     }
 
-    public static void insertChild(String name, long dob, int parentID, Connection conn) throws SQLException {
+    public static void insertChild(String name, Date dob, int parentID, Connection conn) throws SQLException {
         String ins = "INSERT into child(child_name, dob, parent) VALUES(?,?,?)";
         st = conn.prepareStatement(ins);
         st.setString(1, name);
-        st.setLong(2, dob);
+        st.setDate(2, dob);
         st.setInt(3, parentID);
         st.executeUpdate();
         st.close();

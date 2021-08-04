@@ -32,6 +32,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
+        app:helperTextEnabled="true"
+        app:helperText="Format: yyyy-mm-dd or tap calendar icon"
         app:errorEnabled="true"
         app:endIconMode="custom"
         app:endIconDrawable="@drawable/ic_date_24">

@@ -18,7 +18,8 @@
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:theme="@style/Theme.VaccinationScheduler.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
