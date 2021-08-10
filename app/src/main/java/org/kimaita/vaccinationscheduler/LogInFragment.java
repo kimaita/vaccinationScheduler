@@ -90,12 +90,12 @@ public class LogInFragment extends Fragment {
                 ResultSet rs = DatabaseUtils.userDets(id);
                 Log.i("FetchAsyncTask", "Loaded Successfully");
                 if (rs.next()) {
-                    user.setDbID(Integer.parseInt(rs.getString("parent_id")));
+                    user.setDbID(rs.getInt("parent_id"));
                     user.setUsername(rs.getString("parent_name"));
                     user.setEmail(rs.getString("email"));
                     user.setPhoneNumber(rs.getString("phone_number"));
-                    user.setNatID(Integer.parseInt(rs.getString("nat_id")));
-                    user.setPin(Integer.parseInt(rs.getString("user_pin")));
+                    user.setNatID(rs.getInt("nat_id"));
+                    user.setPin(rs.getInt("user_pin"));
                 }
             } catch (SQLException e) {
                 cancel(true);

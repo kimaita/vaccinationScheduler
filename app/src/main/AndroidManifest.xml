@@ -3,7 +3,7 @@
     package="org.kimaita.vaccinationscheduler">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name = "android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
@@ -13,12 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VaccinationScheduler">
-
-        <activity android:name=".AuthActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-
-        </activity>
-        <activity android:name=".MainActivity"
+        <activity android:name=".ChatActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"/>
+        <activity
+            android:name=".AuthActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+        <activity
+            android:name=".MainActivity"
             android:theme="@style/Theme.VaccinationScheduler.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

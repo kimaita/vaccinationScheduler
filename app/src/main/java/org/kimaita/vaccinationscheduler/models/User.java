@@ -11,15 +11,6 @@ public class User implements Serializable {
     int natID;
     int dbID;
 
-    /*public User(int dbID, int natID, String username, String email, String phoneNumber, int pin){
-        this.dbID = dbID;
-        this.natID = natID;
-        this.username = username;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.pin = pin;
-    }*/
-
     public void setUsername(String username) {
         this.username = username;
     }

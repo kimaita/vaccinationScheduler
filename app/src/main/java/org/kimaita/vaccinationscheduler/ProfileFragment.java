@@ -10,33 +10,41 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 
 import org.jetbrains.annotations.NotNull;
+import org.kimaita.vaccinationscheduler.adapters.ChildAdapter;
 import org.kimaita.vaccinationscheduler.databinding.FragmentProfileBinding;
 import org.kimaita.vaccinationscheduler.models.User;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 
 import static org.kimaita.vaccinationscheduler.Constants.usrCred;
 import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
 import static org.kimaita.vaccinationscheduler.Constants.usrDetails;
+import static org.kimaita.vaccinationscheduler.Utils.readUserFile;
 
 
 public class ProfileFragment extends Fragment {
 
     FragmentProfileBinding binding;
-    MaterialButton btnAddChild, btnLogOUt, btnDeleteAcct;
+    ExtendedFloatingActionButton btnAddChild;
+    MaterialButton  btnLogOUt, btnDeleteAcct;
     MaterialTextView txtViewName, txtViewEmail, txtViewPhone, txtViewNatID;
+    RecyclerView recyclerView;
+    ChildAdapter mAdapter;
     SharedPreferences sharedPreferences;
-    int parentID;
+    DBViewModel viewModel;
     File file;
+
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -57,13 +65,18 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View rootView = binding.getRoot();
+        viewModel = new ViewModelProvider(this).get(DBViewModel.class);
         btnAddChild = binding.profileAddchildBtn;
         btnLogOUt = binding.profileLogOut;
         txtViewName = binding.profileName;
         txtViewEmail = binding.profileEmail;
         txtViewPhone = binding.profilePhone;
         txtViewNatID = binding.profileNatID;
-
+        recyclerView = binding.recyclerChildren;
+        mAdapter = new ChildAdapter(new ChildAdapter.ChildDiff());
+        recyclerView.setAdapter(mAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
         return rootView;
     }
 
@@ -71,11 +84,13 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        populateProfile(readUserFile());
+        populateProfile(readUserFile(file));
+
+        viewModel.getChildren(readUserFile(file).getDbID()).observe(getViewLifecycleOwner(), children -> mAdapter.submitList(children));
 
         btnAddChild.setOnClickListener(v -> {
             ProfileFragmentDirections.ActionProfileFragmentToAddChildFragment action =
-                    ProfileFragmentDirections.actionProfileFragmentToAddChildFragment(readUserFile().getDbID());
+                    ProfileFragmentDirections.actionProfileFragmentToAddChildFragment(readUserFile(file).getDbID());
 
             Navigation.findNavController(getView()).navigate(action);
 
@@ -86,28 +101,14 @@ public class ProfileFragment extends Fragment {
             editor.putBoolean(usrCredCurrKey, false);
             editor.apply();
 
-            if(!file.delete()){
+            if (!file.delete()) {
                 Snackbar.make(getView(), "Error Occured Clearing Data", Snackbar.LENGTH_SHORT).show();
             }
             Navigation.findNavController(getView()).navigate(R.id.action_profileFragment_to_authActivity);
         });
     }
 
-    public User readUserFile() {
-        User usr = null;
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            usr = (User) ois.readObject();
-            ois.close();
-        } catch (Exception e) {
-            Snackbar.make(getView(), "Error Reading from file", Snackbar.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-        return usr;
-    }
-
-    private void populateProfile(User user){
+    private void populateProfile(User user) {
         txtViewName.setText(user.getUsername());
         txtViewEmail.setText(user.getEmail());
         txtViewPhone.setText(user.getPhoneNumber());

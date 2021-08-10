@@ -48,9 +48,57 @@ public class DatabaseUtils {
         st.close();
     }
 
-    public static ResultSet getVaccines() throws SQLException {
-        String sel = "SELECT name FROM vaccine";
+    public static ResultSet selectVaccines() throws SQLException {
+        String sel = "SELECT name, administration FROM vaccine";
         st = createConnection().prepareStatement(sel);
+        return st.executeQuery();
+    }
+
+    public static ResultSet selectChildren(int parentID) throws SQLException {
+        String sel = "SELECT * FROM child WHERE parent = ? ORDER BY child_id ASC";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, parentID);
+        return st.executeQuery();
+    }
+
+    public static ResultSet selectHospitals() throws SQLException {
+        String sel = "SELECT hospital_name, hospital_id, email_address, longitude, latitude FROM hospital";
+        st = createConnection().prepareStatement(sel);
+        return st.executeQuery();
+    }
+
+    public static ResultSet selectHospitalDetails(int id) throws SQLException {
+        String sel = "SELECT hospital_name, hospital_id, email_address, longitude, latitude FROM hospital WHERE hospital_id = ?";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, id);
+        return st.executeQuery();
+    }
+
+    public static void insertMessage(int sender, int hospital, String content, long time, boolean read) throws SQLException {
+        String ins = "INSERT INTO messages(parent, hospital, sender, content, time, read_status) VALUES (?,?,?,?,?,?)";
+        st = createConnection().prepareStatement(ins);
+        st.setInt(1, sender);
+        st.setInt(2, hospital);
+        st.setInt(3, sender);
+        st.setString(4, content);
+        st.setTimestamp(5, new java.sql.Timestamp(time));
+        st.setBoolean(6, read);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static ResultSet selectUserMessages(int id) throws SQLException {
+        String sel = "SELECT t1.*, hospital.hospital_name FROM messages t1 INNER JOIN hospital ON t1.hospital = hospital.hospital_id JOIN (SELECT hospital, MAX(time) time FROM messages GROUP BY hospital) t2 ON t1.hospital = t2.hospital AND t1.time = t2.time WHERE t1.parent = ? ORDER BY time DESC";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, id);
+        return st.executeQuery();
+    }
+
+    public static ResultSet selectChatMessages(int userID, int hosID) throws SQLException {
+        String sel = "SELECT * FROM messages WHERE parent = ? AND hospital = ? ORDER BY time DESC";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, userID);
+        st.setInt(2, hosID);
         return st.executeQuery();
     }
 }

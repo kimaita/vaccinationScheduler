@@ -25,7 +25,7 @@ import org.kimaita.vaccinationscheduler.databinding.FragmentSignUpBinding;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.kimaita.vaccinationscheduler.NetworkUtils.isInternetAvailable;
+import static org.kimaita.vaccinationscheduler.Utils.isInternetAvailable;
 
 public class SignUpFragment extends Fragment {
 

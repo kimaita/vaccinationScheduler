@@ -43,10 +43,20 @@
         android:id="@+id/messagesFragment"
         android:name="org.kimaita.vaccinationscheduler.MessagesFragment"
         android:label="@string/messages"
-        tools:layout="@layout/fragment_messages" />
+        tools:layout="@layout/fragment_messages" >
+        <action
+            android:id="@+id/action_newchat"
+            app:destination="@id/hospitalsFragment"/>
+
+    </fragment>
     <activity
         android:id="@+id/authActivity"
         android:name="org.kimaita.vaccinationscheduler.AuthActivity"
         android:label="activity_auth"
         tools:layout="@layout/activity_auth" />
+    <fragment
+        android:id="@+id/hospitalsFragment"
+        android:name="org.kimaita.vaccinationscheduler.HospitalsFragment"
+        android:label="Select Hospital"
+        tools:layout="@layout/fragment_hospitals" />
 </navigation>

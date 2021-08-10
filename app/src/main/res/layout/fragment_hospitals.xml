@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".VaccinesFragment">
+    tools:context=".HospitalsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_vaccines"
-        tools:listitem="@layout/recycler_item_vaccine"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp" />
+        android:id="@+id/recycler_hospitals"
+        android:layout_margin="4dp"
+        tools:listitem="@layout/recycler_item_hospital"/>
 
 </FrameLayout>

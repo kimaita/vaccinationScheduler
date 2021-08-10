@@ -30,4 +30,8 @@
     <string name="name_placeholder">Your Name Here</string>
     <string name="delete">DELETE</string>
     <string name="log_out">Log Out</string>
+    <string name="generate_report">Generate Report</string>
+    <string name="start_chat">Start Chat</string>
+    <string name="dummy_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac lorem dolor. Curabitur ac urna tortor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In varius purus sapien, non vulputate ligula mollis in. Mauris ac ex non turpis lacinia porttitor ut ut orci. Sed at feugiat. </string>
+    <string name="type_a_message">Type a Message</string>
 </resources>
