@@ -1,64 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:gravity="center"
     android:orientation="vertical"
     tools:context=".AddChildFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:id="@+id/layout_addchild_name"
-        android:layout_marginHorizontal="16dp"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout_addChild"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
-        app:errorEnabled="true">
+        android:layout_gravity="top"
+        app:liftOnScroll="true">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/addchild_name"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar_addChild"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:titleCentered="true"
+            app:title="Add Child" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:gravity="center">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_addchild_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/name"
-            android:inputType="textPersonName" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="8dp"
+            app:errorEnabled="true">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layout_addchild_dob"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_marginHorizontal="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
-        app:helperTextEnabled="true"
-        app:helperText="Format: yyyy-mm-dd or tap calendar icon"
-        app:errorEnabled="true"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_date_24">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/addchild_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/name"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/addchild_dob"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_addchild_dob"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:hint="@string/date_of_birth" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="8dp"
+            app:endIconDrawable="@drawable/ic_date_24"
+            app:endIconMode="custom"
+            app:errorEnabled="true"
+            app:helperText="Format: yyyy-mm-dd or tap calendar icon"
+            app:helperTextEnabled="true">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_addchild"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="16dp"
-        android:text="@string/add" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/addchild_dob"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/date_of_birth"
+                android:inputType="date" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/addchild_textStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:padding="4dp"
-        android:textAlignment="center" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_addchild"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="@string/add" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/addchild_textStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:padding="4dp"
+            android:textAlignment="center" />
+    </LinearLayout>
 </LinearLayout>

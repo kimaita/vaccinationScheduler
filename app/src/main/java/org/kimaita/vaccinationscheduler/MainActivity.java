@@ -1,5 +1,8 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.Constants.usrCred;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,9 +14,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import static org.kimaita.vaccinationscheduler.Constants.usrCred;
-import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
         navController.setGraph(R.navigation.mobile_navigation);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
         if (!sharedpreferences.getBoolean(usrCredCurrKey, false)) {

@@ -48,5 +48,12 @@ public class Utils {
         return usr;
     }
 
-    public static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yy H:mm a");
+    public static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yy");
+    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("H:MM a");
+    public static SimpleDateFormat dayMonthFormatter = new SimpleDateFormat("EEE, MMM d");
+    public static SimpleDateFormat monthDayFormatter = new SimpleDateFormat("MMM d");
+    public static SimpleDateFormat dayFormatter = new SimpleDateFormat("EEE");
+    public static SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("EEE, MMM d, yyyy");
+
+
 }

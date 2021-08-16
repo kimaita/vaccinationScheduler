@@ -1,5 +1,7 @@
 package org.kimaita.vaccinationscheduler.adapters;
 
+import static org.kimaita.vaccinationscheduler.Utils.dayMonthYearFormatter;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +60,7 @@ public class ChildAdapter extends ListAdapter<Child, ChildAdapter.ChildViewHolde
 
         private void bind(Child child) {
             name.setText(child.getChildName());
-            date.setText(child.getChildDoB().toString());
+            date.setText(dayMonthYearFormatter.format(child.getChildDoB()));
         }
     }
 }

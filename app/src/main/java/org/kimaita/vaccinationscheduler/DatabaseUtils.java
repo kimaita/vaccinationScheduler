@@ -1,15 +1,15 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.Constants.PASSWORD;
+import static org.kimaita.vaccinationscheduler.Constants.URL;
+import static org.kimaita.vaccinationscheduler.Constants.USER;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static org.kimaita.vaccinationscheduler.Constants.PASSWORD;
-import static org.kimaita.vaccinationscheduler.Constants.URL;
-import static org.kimaita.vaccinationscheduler.Constants.USER;
 
 public class DatabaseUtils {
 
@@ -62,7 +62,7 @@ public class DatabaseUtils {
     }
 
     public static ResultSet selectHospitals() throws SQLException {
-        String sel = "SELECT hospital_name, hospital_id, email_address, longitude, latitude FROM hospital";
+        String sel = "SELECT hospital_name, hospital_id FROM hospital";
         st = createConnection().prepareStatement(sel);
         return st.executeQuery();
     }
@@ -74,12 +74,12 @@ public class DatabaseUtils {
         return st.executeQuery();
     }
 
-    public static void insertMessage(int sender, int hospital, String content, long time, boolean read) throws SQLException {
+    public static void insertMessage(int parent, String sender, int hospital, String content, long time, boolean read) throws SQLException {
         String ins = "INSERT INTO messages(parent, hospital, sender, content, time, read_status) VALUES (?,?,?,?,?,?)";
         st = createConnection().prepareStatement(ins);
-        st.setInt(1, sender);
+        st.setInt(1, parent);
         st.setInt(2, hospital);
-        st.setInt(3, sender);
+        st.setString(3, sender);
         st.setString(4, content);
         st.setTimestamp(5, new java.sql.Timestamp(time));
         st.setBoolean(6, read);
@@ -95,10 +95,18 @@ public class DatabaseUtils {
     }
 
     public static ResultSet selectChatMessages(int userID, int hosID) throws SQLException {
-        String sel = "SELECT * FROM messages WHERE parent = ? AND hospital = ? ORDER BY time DESC";
+        String sel = "SELECT * FROM messages WHERE parent = ? AND hospital = ? ORDER BY time ASC";
         st = createConnection().prepareStatement(sel);
         st.setInt(1, userID);
         st.setInt(2, hosID);
+        return st.executeQuery();
+    }
+
+    public static ResultSet selectSchedule(int childID) throws SQLException {
+        String sel = "SELECT item_id, child_id, vaccine_date, vaccine, vaccine.name, administered FROM child_schedule " +
+                "INNER JOIN vaccine ON vaccine = vaccine.vaccine_id WHERE child_id = ? ORDER BY `vaccine_date` ASC; ";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, childID);
         return st.executeQuery();
     }
 }

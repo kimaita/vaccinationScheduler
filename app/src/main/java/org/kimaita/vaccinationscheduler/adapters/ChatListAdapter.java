@@ -1,5 +1,10 @@
 package org.kimaita.vaccinationscheduler.adapters;
 
+import static org.kimaita.vaccinationscheduler.Utils.dateFormatter;
+import static org.kimaita.vaccinationscheduler.Utils.dayFormatter;
+import static org.kimaita.vaccinationscheduler.Utils.monthDayFormatter;
+import static org.kimaita.vaccinationscheduler.Utils.timeFormatter;
+
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.kimaita.vaccinationscheduler.R;
 import org.kimaita.vaccinationscheduler.models.Message;
 
-import static org.kimaita.vaccinationscheduler.Utils.dateFormatter;
+import java.util.Calendar;
 
 public class ChatListAdapter extends ListAdapter<Message, ChatListAdapter.ChatListViewHolder> {
 
@@ -73,12 +78,27 @@ public class ChatListAdapter extends ListAdapter<Message, ChatListAdapter.ChatLi
 
         public void bind(Message current, OnItemClickListener clickListener) {
             textHospitalName.setText(current.getHospitalName());
-            textDate.setText(dateFormatter.format(current.getTime()));
+            Calendar c = Calendar.getInstance();
+            Calendar txt = Calendar.getInstance();
+            int mYear = c.get(Calendar.YEAR);
+            int mWeek = c.get(Calendar.WEEK_OF_YEAR);
+            int mDay = c.get(Calendar.DATE);
+            txt.setTimeInMillis(current.getTime());
+            if(txt.get(Calendar.DATE) == mDay){
+                textDate.setText(timeFormatter.format(current.getTime()));
+            }else if(txt.get(Calendar.WEEK_OF_YEAR)==mWeek){
+                textDate.setText(dayFormatter.format(current.getTime()));
+            }else if (txt.get(Calendar.YEAR) == mYear){
+                textDate.setText(monthDayFormatter.format(current.getTime()));
+            }else{
+                textDate.setText(dateFormatter.format(current.getTime()));
+            }
             textContent.setText(current.getContent());
-            if (!current.isRead() && (current.getSender() == current.getParent())){
-                textContent.setTypeface(textContent.getTypeface(), Typeface.BOLD_ITALIC);
+            if (current.isRead() && current.getSender().equalsIgnoreCase("H")){
+                textContent.setTypeface(textContent.getTypeface(), Typeface.BOLD);
             }
             itemView.setOnClickListener(v -> clickListener.onItemClick(current));
         }
     }
+
 }

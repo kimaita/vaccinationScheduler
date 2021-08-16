@@ -1,5 +1,7 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.Utils.isInternetAvailable;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.graphics.Color;
@@ -11,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -24,8 +28,7 @@ import org.kimaita.vaccinationscheduler.databinding.FragmentSignUpBinding;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import static org.kimaita.vaccinationscheduler.Utils.isInternetAvailable;
+import java.util.concurrent.ExecutionException;
 
 public class SignUpFragment extends Fragment {
 
@@ -41,10 +44,6 @@ public class SignUpFragment extends Fragment {
 
     public SignUpFragment() {
         // Required empty public constructor
-    }
-
-    public static SignUpFragment newInstance() {
-        return new SignUpFragment();
     }
 
     @Override
@@ -72,19 +71,38 @@ public class SignUpFragment extends Fragment {
         layoutID = binding.layoutSignupNatId;
         layoutPIN = binding.layoutSignupPin;
 
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         btnSignUp.setOnClickListener(v -> {
             //internetCheck();
             if (fieldsFilled()) {
-                new SignUpAsyncTask().execute();
+                try {
+                    boolean isSuccess = new SignUpAsyncTask().execute().get();
+                    if(isSuccess){
+                        Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(
+                                SignUpFragmentDirections.actionSignUpFragment2ToLogInFragment2(Integer.parseInt(textNatID.getText().toString()))
+                        );
+                    }
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             } else {
                 textStatus.setTextColor(Color.RED);
                 textStatus.setText(R.string.fill_fields);
             }
 
         });
-        btnLogIn.setOnClickListener(v -> Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(R.id.logInFragment2));
+        btnLogIn.setOnClickListener(v ->
+                Navigation.findNavController(requireActivity(), R.id.auth_nav_host_fragment).navigate(
+                        SignUpFragmentDirections.actionSignUpFragment2ToLogInFragment2(0)
+                ));
 
-        return root;
     }
 
     private void internetCheck() {
@@ -104,32 +122,32 @@ public class SignUpFragment extends Fragment {
     }
 
     private boolean fieldsFilled() {
-
+        boolean bool = true;
         if (TextUtils.isEmpty(textName.getText())) {
             layoutName.setError(getString(R.string.empty_edittext));
-            return false;
+            bool = false;
         }
         if (TextUtils.isEmpty(textEmail.getText())) {
             layoutEmail.setError(getString(R.string.empty_edittext));
-            return false;
+            bool = false;
         }
         if (TextUtils.isEmpty(textPhone.getText())) {
             layoutPhone.setError(getString(R.string.empty_edittext));
-            return false;
+            bool = false;
         }
         if (TextUtils.isEmpty(textNatID.getText())) {
             layoutID.setError(getString(R.string.empty_edittext));
-            return false;
+            bool = false;
         }
         if (TextUtils.isEmpty(textPIN.getText())) {
             layoutPIN.setError(getString(R.string.empty_edittext));
-            return false;
+            bool = false;
         }
-        return true;
+        return bool;
     }
 
     @SuppressLint("StaticFieldLeak")
-    public class SignUpAsyncTask extends AsyncTask<String, String, String> {
+    public class SignUpAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -142,13 +160,13 @@ public class SignUpFragment extends Fragment {
         }
 
         @Override
-        protected String doInBackground(String... args) {
+        protected Boolean doInBackground(Void... voids) {
             name = textName.getText().toString();
             email = textEmail.getText().toString();
             phone = textPhone.getText().toString();
             id = Integer.parseInt(textNatID.getText().toString());
             pin = Integer.parseInt(textPIN.getText().toString());
-
+            boolean isInserted = false;
             Connection con = null;
             try {
                 con = DatabaseUtils.createConnection();
@@ -159,6 +177,7 @@ public class SignUpFragment extends Fragment {
                 Log.e("Database Connection", "Failed connection", throwables);
                 cancel(true);
                 pDialog.dismiss();
+                isInserted = false;
                 Snackbar.make(getView(), "Can't Connect to the database right now.", Snackbar.LENGTH_LONG).show();
             }
             try {
@@ -166,13 +185,15 @@ public class SignUpFragment extends Fragment {
                 DatabaseUtils.insertUser(name, email, phone, id, pin, con);
                 Log.i("Database Insertion", "Successful insertion");
                 pDialog.setMessage("Writing...");
+                isInserted = true;
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 Log.e("Database Insertion", "Failed insertion", throwables);
                 pDialog.dismiss();
                 failedSignUp();
+                isInserted = false;
             }
-            return null;
+            return isInserted;
         }
 
         @Override
@@ -182,7 +203,7 @@ public class SignUpFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String file_url) {
+        protected void onPostExecute(Boolean bool) {
             // dismiss the dialog once done
             pDialog.dismiss();
         }

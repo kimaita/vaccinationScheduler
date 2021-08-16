@@ -18,7 +18,7 @@
             app:destination="@id/mainActivity" />
         <argument
             android:name="signUpNatID"
-            app:argType="string" />
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment2"

@@ -10,6 +10,6 @@
         android:topLeftRadius="12dp"
         android:topRightRadius="3dp" />
     <solid
-        android:color="@color/purple_200"/>
+        android:color="@color/purple_500"/>
 
 </shape>

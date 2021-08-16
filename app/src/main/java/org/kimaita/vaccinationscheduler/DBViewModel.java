@@ -1,5 +1,15 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.insertMessage;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChatMessages;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChildren;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitalDetails;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitals;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectSchedule;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectUserMessages;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectVaccines;
+import static org.kimaita.vaccinationscheduler.Utils.dayMonthFormatter;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -7,6 +17,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.kimaita.vaccinationscheduler.models.Appointment;
+import org.kimaita.vaccinationscheduler.models.ChatDate;
+import org.kimaita.vaccinationscheduler.models.ChatMessage;
 import org.kimaita.vaccinationscheduler.models.Child;
 import org.kimaita.vaccinationscheduler.models.Hospital;
 import org.kimaita.vaccinationscheduler.models.Message;
@@ -15,14 +28,7 @@ import org.kimaita.vaccinationscheduler.models.Vaccine;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.insertMessage;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChatMessages;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChildren;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitalDetails;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitals;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectUserMessages;
-import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectVaccines;
+import java.util.HashMap;
 
 public class DBViewModel extends ViewModel {
 
@@ -31,8 +37,9 @@ public class DBViewModel extends ViewModel {
     private MutableLiveData<ArrayList<Hospital>> mHospitals;
     private MutableLiveData<Hospital> mHospitalDets;
     private MutableLiveData<Boolean> messageSent;
-    private MutableLiveData<ArrayList<Message>> chatMessages;
+    private MutableLiveData<ArrayList<ChatMessage>> chatMessages;
     private MutableLiveData<ArrayList<Message>> chatList;
+    private MutableLiveData<ArrayList<Appointment>> mAppointments;
 
     public MutableLiveData<ArrayList<Child>> getChildren(int id) {
         if (mChildren == null) {
@@ -66,9 +73,9 @@ public class DBViewModel extends ViewModel {
         return chatList;
     }
 
-    public MutableLiveData<ArrayList<Message>> getChatMessages(int uID, int hosID) {
+    public MutableLiveData<ArrayList<ChatMessage>> getChatMessages(int uID, int hosID) {
         if (chatMessages == null) {
-            chatMessages = new MutableLiveData<>();
+            chatMessages = new MutableLiveData<ArrayList<ChatMessage>>();
             loadChatMessages(uID, hosID);
         }
         return chatMessages;
@@ -82,12 +89,24 @@ public class DBViewModel extends ViewModel {
         return mHospitalDets;
     }
 
+    public MutableLiveData<ArrayList<Appointment>> getmAppointments(int childID) {
+        if(mAppointments == null){
+            mAppointments = new MutableLiveData<>();
+            loadChildSchedule(childID);
+        }
+        return mAppointments;
+    }
+
     public LiveData<Boolean> sendMessage(Message message) {
         if (messageSent == null) {
             messageSent = new MutableLiveData<>();
             new SendMessageAsyncTask().execute(message);
         }
         return messageSent;
+    }
+
+    private void loadChildSchedule(int childID) {
+        new FetchChildSchedule().execute(childID);
     }
 
     private void loadHospitals() {
@@ -195,7 +214,7 @@ public class DBViewModel extends ViewModel {
             boolean success = false;
             Message message = messages[0];
             try {
-                insertMessage(message.getSender(), message.getHospital(), message.getContent(), message.getTime(), message.isRead());
+                insertMessage(message.getParent(), "P", message.getHospital(), message.getContent(), message.getTime(), message.isRead());
                 success = true;
             } catch (SQLException s) {
                 Log.e("Sending Message", "Error Occurred.", s);
@@ -218,9 +237,9 @@ public class DBViewModel extends ViewModel {
                     Message message = new Message();
                     //content, time, read_status, hospital, hospital_name
                     message.setContent(rs.getString("content"));
-
                     message.setHospital(rs.getInt("hospital"));
                     message.setRead(rs.getBoolean("read_status"));
+                    message.setSender(rs.getString("sender"));
                     message.setTime(rs.getTimestamp("time").getTime());
                     message.setHospitalName(rs.getString("hospital_name"));
                     Log.i("Fetching Chat List", "Fetched Successfully: " + message.getContent());
@@ -240,7 +259,8 @@ public class DBViewModel extends ViewModel {
         protected Void doInBackground(Integer... integers) {
             int user = integers[0];
             int hospital = integers[1];
-            ArrayList<Message> mMessages = new ArrayList<>();
+            ArrayList<ChatMessage> mMessages = new ArrayList<>();
+            HashMap<String, ArrayList<Message>> groupedHashMap = new HashMap<>();
             try {
                 ResultSet rs = selectChatMessages(user, hospital);
                 while (rs.next()) {
@@ -248,11 +268,31 @@ public class DBViewModel extends ViewModel {
                     message.setId(rs.getInt("id"));
                     message.setParent(rs.getInt("parent"));
                     message.setHospital(rs.getInt("hospital"));
-                    message.setSender(rs.getInt("sender"));
+                    message.setSender(rs.getString("sender"));
                     message.setContent(rs.getString("content"));
                     message.setTime(rs.getTimestamp("time").getTime());
                     message.setRead(rs.getBoolean("read_status"));
-                    mMessages.add(message);
+                    String hashMapKey = dayMonthFormatter.format(message.getTime());
+
+                    if(groupedHashMap.containsKey(hashMapKey)) {
+                        // The key is already in the HashMap; add the object against the existing key.
+                        groupedHashMap.get(hashMapKey).add(message);
+                    } else {
+                        // The key is not there in the HashMap; create a new key-value pair
+                        ArrayList<Message> list = new ArrayList<>();
+                        list.add(message);
+                        groupedHashMap.put(hashMapKey, list);
+                    }
+                }
+                for (String date : groupedHashMap.keySet()) {
+
+                    ChatDate dateItem = new ChatDate();
+                    dateItem.setDate(date);
+                    mMessages.add(dateItem);
+
+                    for (Message msg : groupedHashMap.get(date)) {
+                        mMessages.add(msg);
+                    }
                 }
                 rs.close();
                 chatMessages.postValue(mMessages);
@@ -271,7 +311,6 @@ public class DBViewModel extends ViewModel {
                 ResultSet rs = selectHospitalDetails(hosID);
                 Hospital hospital = new Hospital();
                 while (rs.next()) {
-
                     hospital.setHospital_id(hosID);
                     hospital.setHospital_name(rs.getString("hospital_name"));
                     hospital.setEmail_address(rs.getString("email_address"));
@@ -280,6 +319,34 @@ public class DBViewModel extends ViewModel {
                 }
                 rs.close();
                 mHospitalDets.postValue(hospital);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
+    class FetchChildSchedule extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int child = integers[0];
+            ArrayList<Appointment> appointments = new ArrayList<>();
+            try {
+                ResultSet rs = selectSchedule(child);
+                while (rs.next())
+                {
+                    Appointment appointment = new Appointment();
+                    appointment.setAppointmentID(rs.getInt("item_id"));
+                    appointment.setVaccinationDate(rs.getDate("vaccine_date"));
+                    appointment.setVaccine(rs.getInt("vaccine"));
+                    appointment.setChildID(rs.getInt("child_id"));
+                    appointment.setAdministered(rs.getBoolean("administered"));
+                    appointment.setVaccineName(rs.getString("vaccine.name"));
+                    appointments.add(appointment);
+                }
+                rs.close();
+                mAppointments.postValue(appointments);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }

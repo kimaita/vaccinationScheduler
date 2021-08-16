@@ -1,5 +1,10 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.Constants.usrCred;
+import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
+import static org.kimaita.vaccinationscheduler.Constants.usrDetails;
+import static org.kimaita.vaccinationscheduler.Utils.readUserFile;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,11 +31,6 @@ import org.kimaita.vaccinationscheduler.databinding.FragmentProfileBinding;
 import org.kimaita.vaccinationscheduler.models.User;
 
 import java.io.File;
-
-import static org.kimaita.vaccinationscheduler.Constants.usrCred;
-import static org.kimaita.vaccinationscheduler.Constants.usrCredCurrKey;
-import static org.kimaita.vaccinationscheduler.Constants.usrDetails;
-import static org.kimaita.vaccinationscheduler.Utils.readUserFile;
 
 
 public class ProfileFragment extends Fragment {
@@ -100,7 +100,6 @@ public class ProfileFragment extends Fragment {
             SharedPreferences.Editor editor = sharedpreferences.edit();
             editor.putBoolean(usrCredCurrKey, false);
             editor.apply();
-
             if (!file.delete()) {
                 Snackbar.make(getView(), "Error Occured Clearing Data", Snackbar.LENGTH_SHORT).show();
             }

@@ -1,9 +1,9 @@
 package org.kimaita.vaccinationscheduler.models;
 
-public class Message {
+public class Message extends ChatMessage{
 
-    int id, sender, hospital, parent;
-    String content, hospitalName;
+    int id, hospital, parent;
+    String content, hospitalName, sender;
     long time;
     boolean read;
 
@@ -19,7 +19,7 @@ public class Message {
         this.read = read;
     }
 
-    public void setSender(int sender) {
+    public void setSender(String sender) {
         this.sender = sender;
     }
 
@@ -47,7 +47,7 @@ public class Message {
         return id;
     }
 
-    public int getSender() {
+    public String getSender() {
         return sender;
     }
 
@@ -69,5 +69,10 @@ public class Message {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public int getType() {
+        return TYPE_CONTENT;
     }
 }
