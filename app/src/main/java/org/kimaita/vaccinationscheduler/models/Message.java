@@ -1,6 +1,6 @@
 package org.kimaita.vaccinationscheduler.models;
 
-public class Message extends ChatMessage{
+public class Message {
 
     int id, hospital, parent;
     String content, hospitalName, sender;
@@ -71,8 +71,4 @@ public class Message extends ChatMessage{
         return content;
     }
 
-    @Override
-    public int getType() {
-        return TYPE_CONTENT;
-    }
 }

@@ -12,6 +12,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.kimaita.vaccinationscheduler.adapters.AppointmentAdapter;
 import org.kimaita.vaccinationscheduler.databinding.FragmentChildAppointmentsBinding;
 import org.kimaita.vaccinationscheduler.models.Appointment;
@@ -28,6 +30,7 @@ public class ChildAppointmentsFragment extends Fragment {
     AppointmentAdapter mAdapter;
     FragmentChildAppointmentsBinding binding;
     LinearLayoutManager layoutManager;
+    MaterialButton btnMarkPreviousAsGiven;
 
     public ChildAppointmentsFragment() {
         // Required empty public constructor
@@ -54,6 +57,7 @@ public class ChildAppointmentsFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentChildAppointmentsBinding.inflate(inflater, container, false);
         recyclerView = binding.recyclerSchedule;
+        btnMarkPreviousAsGiven = binding.btnMarkAllAsGiven;
         viewModel = new ViewModelProvider(this).get(DBViewModel.class);
         mAdapter = new AppointmentAdapter(new AppointmentAdapter.ScheduleDiff());
         recyclerView.setAdapter(mAdapter);
@@ -68,6 +72,13 @@ public class ChildAppointmentsFragment extends Fragment {
         viewModel.getmAppointments(childId).observe(getViewLifecycleOwner(), appointments -> {
             mAdapter.submitList(appointments);
             layoutManager.scrollToPositionWithOffset(pos(appointments), 5);
+        });
+
+        btnMarkPreviousAsGiven.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.updateAllPrevious(childId);
+            }
         });
     }
 

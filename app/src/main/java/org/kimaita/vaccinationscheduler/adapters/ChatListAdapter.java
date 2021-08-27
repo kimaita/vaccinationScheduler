@@ -94,7 +94,7 @@ public class ChatListAdapter extends ListAdapter<Message, ChatListAdapter.ChatLi
                 textDate.setText(dateFormatter.format(current.getTime()));
             }
             textContent.setText(current.getContent());
-            if (current.isRead() && current.getSender().equalsIgnoreCase("H")){
+            if (!current.isRead() && current.getSender().equalsIgnoreCase("H")){
                 textContent.setTypeface(textContent.getTypeface(), Typeface.BOLD);
             }
             itemView.setOnClickListener(v -> clickListener.onItemClick(current));

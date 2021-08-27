@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -43,7 +44,9 @@ public class VaccinesFragment extends Fragment {
         binding = FragmentVaccinesBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(DBViewModel.class);
         recyclerView = binding.recyclerVaccines;
-        mAdapter = new VaccineAdapter(new VaccineAdapter.VaccineDiff());
+        mAdapter = new VaccineAdapter(new VaccineAdapter.VaccineDiff(), vaccine -> {
+            Navigation.findNavController(getView()).navigate(VaccinesFragmentDirections.actionVaccinesFragmentToVaccineDetailsFragment(vaccine.getVaccineDBID()));
+        });
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         return binding.getRoot();
@@ -53,7 +56,6 @@ public class VaccinesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         viewModel.getVaccines().observe(getViewLifecycleOwner(), vaccines -> mAdapter.submitList(vaccines));
 
     }

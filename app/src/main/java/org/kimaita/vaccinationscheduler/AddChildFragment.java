@@ -10,9 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -32,9 +35,10 @@ public class AddChildFragment extends Fragment {
 
     FragmentAddChildBinding binding;
     TextInputLayout nameLayout, dobLayout;
-    TextInputEditText textName, textDOB;
-    MaterialButton btnAddChild;
+    TextInputEditText textName;
+    MaterialButton btnAddChild, btnDOB;
     MaterialTextView textStatus;
+    MaterialToolbar toolbar;
     int parentID;
     String name;
     Date dob;
@@ -56,15 +60,22 @@ public class AddChildFragment extends Fragment {
         binding = FragmentAddChildBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         nameLayout = binding.layoutAddchildName;
-        dobLayout = binding.layoutAddchildDob;
         textName = binding.addchildName;
-        textDOB = binding.addchildDob;
+        btnDOB = binding.addchildDob;
         btnAddChild = binding.btnAddchild;
         textStatus = binding.addchildTextStatus;
+        toolbar = binding.topAppBarAddChild;
 
         parentID = AddChildFragmentArgs.fromBundle(getArguments()).getParentID();
 
-        dobLayout.setEndIconOnClickListener(v -> setDatePicker().show(requireActivity().getSupportFragmentManager(), "DoB"));
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        btnDOB.setOnClickListener(v -> setDatePicker().show(requireActivity().getSupportFragmentManager(), "DoB"));
 
         btnAddChild.setOnClickListener(v -> {
             if (fieldsFilled()) {
@@ -74,7 +85,11 @@ public class AddChildFragment extends Fragment {
                 textStatus.setText(getString(R.string.fill_fields));
             }
         });
-        return root;
+
+        toolbar.setNavigationOnClickListener(v -> {
+                    Navigation.findNavController(getView()).navigate(R.id.action_addChildFragment_to_profileFragment);
+                }
+        );
     }
 
     private MaterialDatePicker<Long> setDatePicker() {
@@ -102,7 +117,7 @@ public class AddChildFragment extends Fragment {
                 .build();
         datePicker.addOnPositiveButtonClickListener(selection -> {
             dob = new Date(selection);
-            textDOB.setText(dob.toString());
+            btnDOB.setText(dob.toString());
         });
         return datePicker;
     }
@@ -113,7 +128,7 @@ public class AddChildFragment extends Fragment {
             nameLayout.setError(getString(R.string.empty_edittext));
             filled = false;
         }
-        if (TextUtils.isEmpty(textDOB.getText())) {
+        if (TextUtils.isEmpty(btnDOB.getText())) {
             dobLayout.setError(getString(R.string.empty_edittext));
             filled = false;
         }
@@ -131,7 +146,6 @@ public class AddChildFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... voids) {
             name = textName.getText().toString();
-            //dob = Long.parseLong(textName.getText().toString());
 
             Connection con = null;
 

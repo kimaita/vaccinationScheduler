@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ChildAppointmentsFragment">
 
     <LinearLayout
@@ -11,17 +11,35 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/text_appt_indicator"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginHorizontal="8dp"
-            android:paddingHorizontal="4dp"
-            android:paddingVertical="8dp"
-            android:text="Future Appointments:"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            android:textColor="@color/black" />
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_appt_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="4dp"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="8dp"
+                android:text="Future Appointments:"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+
+            <com.google.android.material.button.MaterialButton
+                android:tooltipText="@string/update_appts"
+                android:id="@+id/btn_mark_all_as_given"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@id/text_appt_indicator"
+                app:icon="@drawable/ic_all_as_given_24"
+                app:iconGravity="textStart"
+                tools:ignore="UnusedAttribute" />
+
+        </RelativeLayout>
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_schedule"
@@ -29,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:padding="4dp"
-            tools:listitem="@layout/recycler_item_appointment"/>
+            tools:listitem="@layout/recycler_item_appointment" />
     </LinearLayout>
 
 </FrameLayout>

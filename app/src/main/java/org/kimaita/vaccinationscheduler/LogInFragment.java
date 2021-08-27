@@ -42,17 +42,12 @@ public class LogInFragment extends Fragment {
     FragmentLogInBinding binding;
     TextInputEditText textNatID, textPIN;
     TextInputLayout layoutID, layoutPIN;
-    MaterialButton btnLogIn;
+    MaterialButton btnLogIn, btnSignUp;
     MaterialTextView textStatus;
     ProgressDialog pDialog;
     private SharedPreferences sharedpreferences;
-    int natID;
 
     public LogInFragment() {        /* Required empty public constructor*/ }
-
-    public static LogInFragment newInstance() {
-        return new LogInFragment();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +65,7 @@ public class LogInFragment extends Fragment {
         layoutID = binding.layoutLoginNatID;
         layoutPIN = binding.layoutLoginPin;
         btnLogIn = binding.loginBtn;
+        btnSignUp = binding.signUpLoginBtn;
         textStatus = binding.loginTextStatus;
 
         return root;
@@ -80,7 +76,7 @@ public class LogInFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (LogInFragmentArgs.fromBundle(getArguments()).getSignUpNatID() != 0) {
-            textNatID.setText(LogInFragmentArgs.fromBundle(getArguments()).getSignUpNatID());
+            textNatID.setText(String.valueOf(LogInFragmentArgs.fromBundle(getArguments()).getSignUpNatID()));
         }
 
         btnLogIn.setOnClickListener(v -> {
@@ -99,6 +95,10 @@ public class LogInFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
+        });
+
+        btnSignUp.setOnClickListener(v -> {
+            Navigation.findNavController(getView()).navigate(R.id.action_logInFragment2_to_signUpFragment2);
         });
     }
 

@@ -49,11 +49,11 @@ public class Utils {
     }
 
     public static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yy");
-    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("H:MM a");
-    public static SimpleDateFormat dayMonthFormatter = new SimpleDateFormat("EEE, MMM d");
-    public static SimpleDateFormat monthDayFormatter = new SimpleDateFormat("MMM d");
+    public static SimpleDateFormat timeFormatter = new SimpleDateFormat("H:mm a");
+    public static SimpleDateFormat dayMonthFormatter = new SimpleDateFormat("EEE, MMM dd, yyyy, H:mm a");
+    public static SimpleDateFormat monthDayFormatter = new SimpleDateFormat("MMM dd");
     public static SimpleDateFormat dayFormatter = new SimpleDateFormat("EEE");
-    public static SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("EEE, MMM d, yyyy");
+    public static SimpleDateFormat dayMonthYearFormatter = new SimpleDateFormat("EEE, MMM dd, yyyy");
 
 
 }

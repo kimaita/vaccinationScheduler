@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
+import org.kimaita.vaccinationscheduler.DBViewModel;
 import org.kimaita.vaccinationscheduler.R;
 import org.kimaita.vaccinationscheduler.models.Child;
 
@@ -51,16 +53,22 @@ public class ChildAdapter extends ListAdapter<Child, ChildAdapter.ChildViewHolde
     static class ChildViewHolder extends RecyclerView.ViewHolder {
 
         MaterialTextView name, date;
+        MaterialButton deleteChild;
 
         ChildViewHolder(@NonNull final View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.item_child_name);
             date = itemView.findViewById(R.id.item_child_dob);
+            deleteChild = itemView.findViewById(R.id.btn_delete_child);
         }
 
         private void bind(Child child) {
             name.setText(child.getChildName());
             date.setText(dayMonthYearFormatter.format(child.getChildDoB()));
+            deleteChild.setOnClickListener(v -> {
+                new DBViewModel().removeChild(child.getChildDBID());
+            });
+
         }
     }
 }

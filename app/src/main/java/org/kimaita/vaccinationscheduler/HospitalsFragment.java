@@ -10,9 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.appbar.MaterialToolbar;
 
 import org.kimaita.vaccinationscheduler.adapters.HospitalsAdapter;
 import org.kimaita.vaccinationscheduler.databinding.FragmentHospitalsBinding;
@@ -21,6 +24,7 @@ public class HospitalsFragment extends Fragment {
 
     FragmentHospitalsBinding binding;
     RecyclerView recyclerHospitals;
+    MaterialToolbar toolbar;
     HospitalsAdapter mAdapter;
     DBViewModel viewModel;
 
@@ -44,6 +48,7 @@ public class HospitalsFragment extends Fragment {
         binding = FragmentHospitalsBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(DBViewModel.class);
         recyclerHospitals = binding.recyclerHospitals;
+        toolbar = binding.topAppBarHospitals;
         mAdapter = new HospitalsAdapter(new HospitalsAdapter.HospitalDiff(), hospital -> {
             Intent intent = new Intent(getContext(), ChatActivity.class);
             intent.putExtra("hospital", hospital.getHospital_id());
@@ -63,5 +68,8 @@ public class HospitalsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel.getHospitals().observe(getViewLifecycleOwner(), hospitals -> mAdapter.submitList(hospitals));
+        toolbar.setNavigationOnClickListener(v -> {
+            Navigation.findNavController(getView()).navigate(R.id.messagesFragment);
+        });
     }
 }

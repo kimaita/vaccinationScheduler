@@ -19,16 +19,17 @@
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:titleCentered="true"
-            app:title="Add Child" />
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:title="Add Child"
+            />
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_gravity="center_vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_addchild_name"
@@ -47,26 +48,14 @@
                 android:inputType="textPersonName" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_addchild_dob"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp"
-            app:endIconDrawable="@drawable/ic_date_24"
-            app:endIconMode="custom"
-            app:errorEnabled="true"
-            app:helperText="Format: yyyy-mm-dd or tap calendar icon"
-            app:helperTextEnabled="true">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/addchild_dob"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/date_of_birth"
-                android:inputType="date" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addchild_dob"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date_of_birth"
+            app:icon="@drawable/ic_date_24" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_addchild"

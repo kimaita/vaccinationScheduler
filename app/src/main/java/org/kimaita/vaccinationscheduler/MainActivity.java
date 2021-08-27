@@ -10,7 +10,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -27,9 +26,6 @@ public class MainActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(usrCred, Context.MODE_PRIVATE);
 
         BottomNavigationView navView = findViewById(R.id.bottom_nav);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.scheduleFragment, R.id.messagesFragment, R.id.vaccinesFragment, R.id.profileFragment)
-                .build();
         NavController navController;
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();

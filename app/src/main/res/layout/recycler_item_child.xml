@@ -12,21 +12,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
     <com.google.android.material.textview.MaterialTextView
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:id="@+id/item_child_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:id="@+id/item_child_dob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_child"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:text="@string/generate_report" />
+            android:text="Remove Child"
+            app:icon="@drawable/ic_delete_forever_24"
+            app:iconGravity="textStart"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

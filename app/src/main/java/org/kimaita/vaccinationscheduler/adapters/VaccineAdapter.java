@@ -16,8 +16,15 @@ import org.kimaita.vaccinationscheduler.models.Vaccine;
 
 public class VaccineAdapter extends ListAdapter<Vaccine, VaccineAdapter.VaccineViewHolder> {
 
-    public VaccineAdapter(@NonNull DiffUtil.ItemCallback<Vaccine> diffCallback) {
+    private final OnItemClickListener clickListener;
+
+    public VaccineAdapter(@NonNull DiffUtil.ItemCallback<Vaccine> diffCallback, OnItemClickListener clickListener) {
         super(diffCallback);
+        this.clickListener = clickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Vaccine vaccine);
     }
 
     @NonNull
@@ -30,7 +37,7 @@ public class VaccineAdapter extends ListAdapter<Vaccine, VaccineAdapter.VaccineV
     @Override
     public void onBindViewHolder(@NonNull VaccineViewHolder holder, int position) {
         Vaccine current = getItem(position);
-        holder.bind(current);
+        holder.bind(current, clickListener);
     }
 
     public static class VaccineDiff extends DiffUtil.ItemCallback<Vaccine> {
@@ -56,9 +63,10 @@ public class VaccineAdapter extends ListAdapter<Vaccine, VaccineAdapter.VaccineV
             textVaccineAdministration = itemView.findViewById(R.id.item_vaccine_admin);
         }
 
-        public void bind(Vaccine current) {
+        public void bind(Vaccine current, OnItemClickListener clickListener) {
             textVaccineName.setText(current.getVaccineName());
             textVaccineAdministration.setText(current.getVaccineAdministration());
+            itemView.setOnClickListener(v -> clickListener.onItemClick(current));
         }
     }
 }

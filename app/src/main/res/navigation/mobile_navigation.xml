@@ -38,7 +38,11 @@
         android:id="@+id/vaccinesFragment"
         android:name="org.kimaita.vaccinationscheduler.VaccinesFragment"
         android:label="@string/vaccines"
-        tools:layout="@layout/fragment_vaccines" />
+        tools:layout="@layout/fragment_vaccines" >
+        <action
+            android:id="@+id/action_vaccinesFragment_to_vaccineDetailsFragment"
+            app:destination="@id/vaccineDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/messagesFragment"
         android:name="org.kimaita.vaccinationscheduler.MessagesFragment"
@@ -59,4 +63,12 @@
         android:name="org.kimaita.vaccinationscheduler.HospitalsFragment"
         android:label="Select Hospital"
         tools:layout="@layout/fragment_hospitals" />
+    <fragment
+        android:id="@+id/vaccineDetailsFragment"
+        android:name="org.kimaita.vaccinationscheduler.VaccineDetailsFragment"
+        android:label="fragment_vaccine_details"
+        tools:layout="@layout/fragment_vaccine_details" >
+        <argument android:name="vaccineID"
+            app:argType="integer" />
+    </fragment>
 </navigation>

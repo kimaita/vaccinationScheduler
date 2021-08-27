@@ -1,14 +1,20 @@
 package org.kimaita.vaccinationscheduler;
 
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.deleteChat;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.deleteParent;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.insertMessage;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChatMessages;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChildVaccine;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectChildren;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitalDetails;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectHospitals;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectSchedule;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectUserMessages;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectVaccineDetails;
 import static org.kimaita.vaccinationscheduler.DatabaseUtils.selectVaccines;
-import static org.kimaita.vaccinationscheduler.Utils.dayMonthFormatter;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.setPreviousShotsGiven;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.updateAppointmentMet;
+import static org.kimaita.vaccinationscheduler.DatabaseUtils.updateMessageReadStatus;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -18,8 +24,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.kimaita.vaccinationscheduler.models.Appointment;
-import org.kimaita.vaccinationscheduler.models.ChatDate;
-import org.kimaita.vaccinationscheduler.models.ChatMessage;
 import org.kimaita.vaccinationscheduler.models.Child;
 import org.kimaita.vaccinationscheduler.models.Hospital;
 import org.kimaita.vaccinationscheduler.models.Message;
@@ -28,7 +32,6 @@ import org.kimaita.vaccinationscheduler.models.Vaccine;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class DBViewModel extends ViewModel {
 
@@ -36,10 +39,12 @@ public class DBViewModel extends ViewModel {
     private MutableLiveData<ArrayList<Vaccine>> mVaccines;
     private MutableLiveData<ArrayList<Hospital>> mHospitals;
     private MutableLiveData<Hospital> mHospitalDets;
+    private MutableLiveData<Vaccine> mVaccineDets;
     private MutableLiveData<Boolean> messageSent;
-    private MutableLiveData<ArrayList<ChatMessage>> chatMessages;
+    private MutableLiveData<ArrayList<Message>> chatMessages;
     private MutableLiveData<ArrayList<Message>> chatList;
     private MutableLiveData<ArrayList<Appointment>> mAppointments;
+    private MutableLiveData<ArrayList<Appointment>> mVaxAppointments;
 
     public MutableLiveData<ArrayList<Child>> getChildren(int id) {
         if (mChildren == null) {
@@ -73,29 +78,48 @@ public class DBViewModel extends ViewModel {
         return chatList;
     }
 
-    public MutableLiveData<ArrayList<ChatMessage>> getChatMessages(int uID, int hosID) {
+    public MutableLiveData<ArrayList<Message>> getChatMessages(int uID, int hosID) {
         if (chatMessages == null) {
-            chatMessages = new MutableLiveData<ArrayList<ChatMessage>>();
+            chatMessages = new MutableLiveData<>();
             loadChatMessages(uID, hosID);
         }
         return chatMessages;
     }
 
     public MutableLiveData<Hospital> getmHospital(int hosID) {
-        if (mHospitalDets == null) {
-            mHospitalDets = new MutableLiveData<>();
-            loadHospitalDets(hosID);
-        }
+        mHospitalDets = new MutableLiveData<>();
+        loadHospitalDets(hosID);
         return mHospitalDets;
     }
 
+    public MutableLiveData<Vaccine> getmVaccineDets(int vaccineID) {
+        if (mVaccineDets == null) {
+            mVaccineDets = new MutableLiveData<>();
+            loadVaccineDetails(vaccineID);
+        }
+        return mVaccineDets;
+    }
+
+    private void loadVaccineDetails(int vaccineID) {
+        new FetchVaccineDetails().execute(vaccineID);
+    }
+
     public MutableLiveData<ArrayList<Appointment>> getmAppointments(int childID) {
-        if(mAppointments == null){
+        if (mAppointments == null) {
             mAppointments = new MutableLiveData<>();
             loadChildSchedule(childID);
         }
         return mAppointments;
     }
+
+    public MutableLiveData<ArrayList<Appointment>> getmVaxAppointments(int childID, int vaccineID) {
+        if (mVaxAppointments == null) {
+            mVaxAppointments = new MutableLiveData<>();
+            loadVaccineChildSchedule(childID, vaccineID);
+        }
+        return mVaxAppointments;
+    }
+
 
     public LiveData<Boolean> sendMessage(Message message) {
         if (messageSent == null) {
@@ -103,6 +127,30 @@ public class DBViewModel extends ViewModel {
             new SendMessageAsyncTask().execute(message);
         }
         return messageSent;
+    }
+
+    public void updateAppointment(int apptID) {
+        new UpdateAppointment().execute(apptID);
+    }
+
+    public void updateAllPrevious(int childID) {
+        new UpdatePreviousAppointments().execute(childID);
+    }
+
+    public void deleteHospitalChat(int userID, int hosID) {
+        new DeleteChat().execute(userID, hosID);
+    }
+
+    public void updateMessageRead(int messageID){
+        new UpdateMessageRead().execute(messageID);
+    }
+
+    public void deleteUser(int userID) {
+        new DeleteUser().execute(userID);
+    }
+
+    public void removeChild(int childID) {
+        new DeleteChild().execute(childID);
     }
 
     private void loadChildSchedule(int childID) {
@@ -115,6 +163,10 @@ public class DBViewModel extends ViewModel {
 
     private void loadHospitalDets(int hosID) {
         new FetchHospitalDetails().execute(hosID);
+    }
+
+    private void loadVaccineChildSchedule(int childID, int vaccineID) {
+        new FetchChildVaccineSchedule().execute(childID, vaccineID);
     }
 
     private void loadVaccines() {
@@ -174,6 +226,7 @@ public class DBViewModel extends ViewModel {
                 ResultSet rs = selectVaccines();
                 while (rs.next()) {
                     Vaccine vaccine = new Vaccine();
+                    vaccine.setVaccineDBID(rs.getInt("vaccine_id"));
                     vaccine.setVaccineName(rs.getString("name"));
                     vaccine.setVaccineAdministration(rs.getString("administration"));
                     vaccines.add(vaccine);
@@ -259,8 +312,7 @@ public class DBViewModel extends ViewModel {
         protected Void doInBackground(Integer... integers) {
             int user = integers[0];
             int hospital = integers[1];
-            ArrayList<ChatMessage> mMessages = new ArrayList<>();
-            HashMap<String, ArrayList<Message>> groupedHashMap = new HashMap<>();
+            ArrayList<Message> mMessages = new ArrayList<>();
             try {
                 ResultSet rs = selectChatMessages(user, hospital);
                 while (rs.next()) {
@@ -272,27 +324,7 @@ public class DBViewModel extends ViewModel {
                     message.setContent(rs.getString("content"));
                     message.setTime(rs.getTimestamp("time").getTime());
                     message.setRead(rs.getBoolean("read_status"));
-                    String hashMapKey = dayMonthFormatter.format(message.getTime());
-
-                    if(groupedHashMap.containsKey(hashMapKey)) {
-                        // The key is already in the HashMap; add the object against the existing key.
-                        groupedHashMap.get(hashMapKey).add(message);
-                    } else {
-                        // The key is not there in the HashMap; create a new key-value pair
-                        ArrayList<Message> list = new ArrayList<>();
-                        list.add(message);
-                        groupedHashMap.put(hashMapKey, list);
-                    }
-                }
-                for (String date : groupedHashMap.keySet()) {
-
-                    ChatDate dateItem = new ChatDate();
-                    dateItem.setDate(date);
-                    mMessages.add(dateItem);
-
-                    for (Message msg : groupedHashMap.get(date)) {
-                        mMessages.add(msg);
-                    }
+                    mMessages.add(message);
                 }
                 rs.close();
                 chatMessages.postValue(mMessages);
@@ -314,8 +346,8 @@ public class DBViewModel extends ViewModel {
                     hospital.setHospital_id(hosID);
                     hospital.setHospital_name(rs.getString("hospital_name"));
                     hospital.setEmail_address(rs.getString("email_address"));
-                    hospital.setLatitude(rs.getDouble("longitude"));
-                    hospital.setLongitude(rs.getDouble("latitude"));
+                    hospital.setLatitude(rs.getDouble("latitude"));
+                    hospital.setLongitude(rs.getDouble("longitude"));
                 }
                 rs.close();
                 mHospitalDets.postValue(hospital);
@@ -326,6 +358,31 @@ public class DBViewModel extends ViewModel {
         }
     }
 
+    class FetchVaccineDetails extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int vaccineID = integers[0];
+            try {
+                Vaccine vaccine = new Vaccine();
+                ResultSet rs = selectVaccineDetails(vaccineID);
+                while (rs.next()) {
+                    vaccine.setVaccineDBID(rs.getInt("vaccine_id"));
+                    vaccine.setVaccineName(rs.getString("name"));
+                    vaccine.setVaccineAdministration(rs.getString("administration"));
+                    vaccine.setVaccineLink(rs.getString("link"));
+                    vaccine.setVaccineDates(rs.getString("ages"));
+                    vaccine.setVaccineDiseases(rs.getString("disease"));
+                }
+                rs.close();
+                mVaccineDets.postValue(vaccine);
+                Log.i("Fetch Vaccine Details", "Fetched: "+vaccine.getVaccineName());
+            } catch (SQLException throwables) {
+                Log.e("Fetch Vaccine Details", "Failed to fetch details", throwables);
+            }
+            return null;
+        }
+    }
 
     class FetchChildSchedule extends AsyncTask<Integer, Void, Void> {
         @Override
@@ -334,8 +391,7 @@ public class DBViewModel extends ViewModel {
             ArrayList<Appointment> appointments = new ArrayList<>();
             try {
                 ResultSet rs = selectSchedule(child);
-                while (rs.next())
-                {
+                while (rs.next()) {
                     Appointment appointment = new Appointment();
                     appointment.setAppointmentID(rs.getInt("item_id"));
                     appointment.setVaccinationDate(rs.getDate("vaccine_date"));
@@ -353,4 +409,112 @@ public class DBViewModel extends ViewModel {
             return null;
         }
     }
+
+    class FetchChildVaccineSchedule extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int child = integers[0];
+            int vaccine = integers[1];
+            ArrayList<Appointment> appointments = new ArrayList<>();
+            try {
+                ResultSet rs = selectChildVaccine(child, vaccine);
+                while (rs.next()) {
+                    Appointment appointment = new Appointment();
+                    appointment.setAppointmentID(rs.getInt("item_id"));
+                    appointment.setVaccinationDate(rs.getDate("vaccine_date"));
+                    appointment.setVaccine(rs.getInt("vaccine"));
+                    appointment.setChildID(rs.getInt("child_id"));
+                    appointment.setAdministered(rs.getBoolean("administered"));
+                    appointments.add(appointment);
+                }
+                rs.close();
+                mVaxAppointments.postValue(appointments);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    class UpdateAppointment extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int apptID = integers[0];
+            try {
+                updateAppointmentMet(apptID);
+            } catch (SQLException s) {
+                Log.e("Updating Appointment", "Failed to Update", s);
+            }
+            return null;
+        }
+    }
+
+    class UpdatePreviousAppointments extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int child = integers[0];
+            try {
+                setPreviousShotsGiven(child);
+            } catch (SQLException throwables) {
+                Log.e("Updating All Previous", "Failed to Update", throwables);
+            }
+            return null;
+        }
+    }
+
+    private class UpdateMessageRead extends AsyncTask<Integer, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int messageID = integers[0];
+            try {
+                updateMessageReadStatus(messageID);
+            } catch (SQLException throwables) {
+                Log.e("Updating Message Read", "Failed to Update ", throwables);
+            }
+            return null;
+        }
+    }
+
+    private class DeleteChat extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int userID = integers[0], hosID = integers[1];
+            try {
+                deleteChat(userID, hosID);
+                chatMessages = null;
+            } catch (SQLException e) {
+                Log.e("Deleting Chat", "Failed to Delete", e);
+            }
+            return null;
+        }
+    }
+
+    private class DeleteUser extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int userID = integers[0];
+            try {
+                deleteParent(userID);
+            } catch (SQLException e) {
+                Log.e("Deleting User", "Failed to Delete", e);
+            }
+            return null;
+        }
+    }
+
+    private class DeleteChild extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            int child = integers[0];
+            try {
+                DatabaseUtils.deleteChild(child);
+            } catch (SQLException throwables) {
+                Log.e("Deleting Child", "Failed to Delete", throwables);
+            }
+            return null;
+        }
+    }
+
 }

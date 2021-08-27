@@ -17,14 +17,16 @@
         android:id="@+id/chat_message_rec_content"
         android:layout_width="wrap_content"
         android:maxWidth="240dp"
+        android:gravity="center_vertical|start"
         android:padding="8dp"
         android:layout_height="wrap_content"
         android:text="@string/dummy_text" />
 
     <com.google.android.material.textview.MaterialTextView
         android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
-        android:layout_gravity="end"
+        android:layout_gravity="start"
         android:layout_marginStart="8dp"
+        android:visibility="gone"
         android:id="@+id/chat_message_rec_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

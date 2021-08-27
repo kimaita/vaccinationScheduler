@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context=".AuthActivity">
 
     <androidx.fragment.app.FragmentContainerView
@@ -15,21 +15,5 @@
         android:layout_height="match_parent"
         app:defaultNavHost="false"
         app:navGraph="@navigation/auth_navigation" />
-<!--    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:id="@+id/auth_login_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
-        android:textSize="18sp"
-        android:text="@string/log_in"/>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/auth_signup_btn"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:textSize="18sp"
-        android:layout_marginVertical="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sign_up" />-->
 
 </LinearLayout>

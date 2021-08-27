@@ -10,9 +10,9 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
+        style="@style/Widget.MaterialComponents.AppBarLayout.Primary"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:liftOnScroll="true">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -26,9 +26,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/purple_500"
             style="@style/Widget.MaterialComponents.TabLayout.PrimarySurface"
-            app:tabIndicatorColor="@color/white"
             app:tabMode="auto" />
     </com.google.android.material.appbar.AppBarLayout>
 

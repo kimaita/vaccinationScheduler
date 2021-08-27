@@ -24,11 +24,6 @@ import org.kimaita.vaccinationscheduler.models.Child;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ScheduleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ScheduleFragment extends Fragment {
 
     FragmentScheduleBinding binding;
@@ -88,9 +83,7 @@ public class ScheduleFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-
                 return new ChildAppointmentsFragment().newInstance(mChildList.get(position).getChildDBID());
-
         }
 
         @Override

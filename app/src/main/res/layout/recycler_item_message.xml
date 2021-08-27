@@ -7,10 +7,11 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/hosp_profile_picture"
+        android:backgroundTint="@color/teal_200"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_margin="8dp"
-        android:src="@drawable/ic_local_hospital"
+        android:src="@drawable/ic_support_agent"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
 
     <LinearLayout

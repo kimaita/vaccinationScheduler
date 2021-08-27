@@ -49,7 +49,7 @@ public class DatabaseUtils {
     }
 
     public static ResultSet selectVaccines() throws SQLException {
-        String sel = "SELECT name, administration FROM vaccine";
+        String sel = "SELECT vaccine_id, name, administration FROM vaccine";
         st = createConnection().prepareStatement(sel);
         return st.executeQuery();
     }
@@ -74,6 +74,14 @@ public class DatabaseUtils {
         return st.executeQuery();
     }
 
+    public static ResultSet selectChildVaccine(int vaccineID, int childID) throws SQLException {
+        String sel = "SELECT * FROM child_schedule WHERE vaccine = ? AND child_id = ?";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, vaccineID);
+        st.setInt(2, childID);
+        return st.executeQuery();
+    }
+
     public static void insertMessage(int parent, String sender, int hospital, String content, long time, boolean read) throws SQLException {
         String ins = "INSERT INTO messages(parent, hospital, sender, content, time, read_status) VALUES (?,?,?,?,?,?)";
         st = createConnection().prepareStatement(ins);
@@ -83,6 +91,14 @@ public class DatabaseUtils {
         st.setString(4, content);
         st.setTimestamp(5, new java.sql.Timestamp(time));
         st.setBoolean(6, read);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static void updateMessageReadStatus(int messageID) throws SQLException {
+        String upd = "UPDATE messages SET read_status = 1 WHERE id = ?";
+        st = createConnection().prepareStatement(upd);
+        st.setInt(1, messageID);
         st.executeUpdate();
         st.close();
     }
@@ -109,4 +125,53 @@ public class DatabaseUtils {
         st.setInt(1, childID);
         return st.executeQuery();
     }
+
+    public static ResultSet selectVaccineDetails(int vaccineID) throws SQLException {
+        String sel = "SELECT * FROM vaccine WHERE vaccine_id = ?";
+        st = createConnection().prepareStatement(sel);
+        st.setInt(1, vaccineID);
+        return st.executeQuery();
+    }
+    public static void setPreviousShotsGiven(int childID) throws SQLException {
+        String upd = "UPDATE child_schedule SET administered = 1 WHERE child_id = ? AND vaccine_date<CURRENT_DATE";
+        st = createConnection().prepareStatement(upd);
+        st.setInt(1, childID);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static void updateAppointmentMet(int apptID) throws SQLException {
+        String upd = "UPDATE child_schedule SET administered = 1 WHERE child_schedule.item_id = ?";
+        st = createConnection().prepareStatement(upd);
+        st.setInt(1, apptID);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static void deleteParent(int parentID) throws SQLException {
+        String del = "DELETE FROM Parent WHERE Parent.parent_id = ?";
+        st = createConnection().prepareStatement(del);
+        st.setInt(1, parentID);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static void deleteChild(int childID) throws SQLException {
+        String del = "DELETE FROM child WHERE child_id = ?";
+        st = createConnection().prepareStatement(del);
+        st.setInt(1, childID);
+        st.executeUpdate();
+        st.close();
+    }
+
+    public static void deleteChat(int parentID, int hospitalID) throws SQLException {
+        String del = "DELETE FROM messages WHERE parent = ? AND hospital = ? AND sender = 'P' ";
+        st = createConnection().prepareStatement(del);
+        st.setInt(1, parentID);
+        st.setInt(2, hospitalID);
+        st.executeUpdate();
+        st.close();
+    }
+
+
 }

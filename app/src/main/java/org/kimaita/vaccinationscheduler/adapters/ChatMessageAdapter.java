@@ -1,6 +1,6 @@
 package org.kimaita.vaccinationscheduler.adapters;
 
-import static org.kimaita.vaccinationscheduler.Utils.timeFormatter;
+import static org.kimaita.vaccinationscheduler.Utils.dayMonthFormatter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,17 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 
+import org.kimaita.vaccinationscheduler.DBViewModel;
 import org.kimaita.vaccinationscheduler.R;
-import org.kimaita.vaccinationscheduler.models.ChatDate;
-import org.kimaita.vaccinationscheduler.models.ChatMessage;
 import org.kimaita.vaccinationscheduler.models.Message;
 
-public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.ViewHolder> {
+public class ChatMessageAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
 
     private static final int VIEW_TYPE_MESSAGE_SENT = 2;
     private static final int VIEW_TYPE_MESSAGE_RECEIVED = 3;
 
-    public ChatMessageAdapter(@NonNull DiffUtil.ItemCallback<ChatMessage> diffCallback) {
+    public ChatMessageAdapter(@NonNull DiffUtil.ItemCallback<Message> diffCallback) {
         super(diffCallback);
     }
 
@@ -31,17 +30,14 @@ public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
     @Override
     public int getItemViewType(int position) {
         int viewType;
-        ChatMessage chatMessage = getItem(position);
-        viewType = chatMessage.getType();
-        if (viewType == 1) {
-            Message msg = (Message) chatMessage;
-            if (msg.getSender().equals("P")) {
-                // If the current user is the sender of the message
-                viewType = VIEW_TYPE_MESSAGE_SENT;
-            } else {
-                viewType = VIEW_TYPE_MESSAGE_RECEIVED;
-            }
+        Message msg = getItem(position);
+        if (msg.getSender().equals("P")) {
+            // If the current user is the sender of the message
+            viewType = VIEW_TYPE_MESSAGE_SENT;
+        } else {
+            viewType = VIEW_TYPE_MESSAGE_RECEIVED;
         }
+
         return viewType;
     }
 
@@ -64,10 +60,6 @@ public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
                 viewHolder = new ReceivedTextViewHolder(v3);
                 break;
 
-            case ChatMessage.TYPE_DATE:
-                View v2 = inflater.inflate(R.layout.recycler_item_chat_date, parent, false);
-                viewHolder = new DateViewHolder(v2);
-                break;
         }
 
         return viewHolder;
@@ -79,34 +71,29 @@ public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
         switch (holder.getItemViewType()) {
 
             case VIEW_TYPE_MESSAGE_SENT:
-                Message message = (Message) getItem(position);
+                Message message = getItem(position);
                 UserTextViewHolder userTextViewHolder = (UserTextViewHolder) holder;
                 userTextViewHolder.bind(message);
                 break;
 
             case VIEW_TYPE_MESSAGE_RECEIVED:
-                Message messageReceived = (Message) getItem(position);
+                Message messageReceived = getItem(position);
                 ReceivedTextViewHolder receivedTextViewHolder = (ReceivedTextViewHolder) holder;
                 receivedTextViewHolder.bind(messageReceived);
                 break;
 
-            case ChatMessage.TYPE_DATE:
-                ChatDate dateItem = (ChatDate) getItem(position);
-                DateViewHolder dateViewHolder = (DateViewHolder) holder;
-                dateViewHolder.bind(dateItem);
-                break;
         }
     }
 
-    public static class MessageDiff extends DiffUtil.ItemCallback<ChatMessage> {
+    public static class MessageDiff extends DiffUtil.ItemCallback<Message> {
 
         @Override
-        public boolean areItemsTheSame(@NonNull ChatMessage oldItem, @NonNull ChatMessage newItem) {
+        public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
             return oldItem == newItem;
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull ChatMessage oldItem, @NonNull ChatMessage newItem) {
+        public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
             return false;
         }
     }
@@ -122,7 +109,20 @@ public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
 
         public void bind(Message message) {
             content.setText(message.getContent());
-            tvTime.setText(timeFormatter.format(message.getTime()));
+            tvTime.setText(dayMonthFormatter.format(message.getTime()));
+            if (message.isRead()){
+                tvTime.setText(dayMonthFormatter.format(message.getTime())+" Read");
+            }
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(tvTime.getVisibility() == View.VISIBLE){
+                        tvTime.setVisibility(View.GONE);
+                    }else if (tvTime.getVisibility() == View.GONE){
+                        tvTime.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
     }
 
@@ -137,23 +137,22 @@ public class ChatMessageAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
 
         public void bind(Message message) {
             content.setText(message.getContent());
-            tvTime.setText(timeFormatter.format(message.getTime()));
-
+            tvTime.setText(dayMonthFormatter.format(message.getTime()));
+            if(!message.isRead()){
+                new DBViewModel().updateMessageRead(message.getId());
+            }
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(tvTime.getVisibility() == View.VISIBLE){
+                        tvTime.setVisibility(View.GONE);
+                    }else if (tvTime.getVisibility() == View.GONE){
+                        tvTime.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
     }
 
-    // ViewHolder for date row item
-    public static class DateViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView dateTextView;
-
-        public DateViewHolder(View v) {
-            super(v);
-            dateTextView = v.findViewById(R.id.chat_date_label);
-        }
-
-        public void bind(ChatDate date) {
-            dateTextView.setText(date.getDate());
-        }
-    }
 
 }

@@ -17,7 +17,6 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/hosp_list_name"
-        android:textAllCaps="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />

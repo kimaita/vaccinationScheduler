@@ -8,7 +8,7 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="welcome">"Welcome!"</string>
     <string name="invalid_username">Credentials not registered.</string>
     <string name="invalid_pin">PIN must be 6 digits</string>
     <string name="wrong_pin">Wrong PIN</string>
@@ -34,4 +34,16 @@
     <string name="start_chat">Start Chat</string>
     <string name="dummy_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ac lorem dolor. Curabitur ac urna tortor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In varius purus sapien, non vulputate ligula mollis in. Mauris ac ex non turpis lacinia porttitor ut ut orci. Sed at feugiat. </string>
     <string name="type_a_message">Type a Message</string>
+    <string name="no_location_detected">
+        No location detected. Make sure location is enabled on the device.
+    </string>
+    <string name="permission_rationale">Location permission is needed to provide hospital proximity</string>
+    <string name="permission_denied_explanation">Permission was denied, cannot show distance.</string>
+    <string name="settings">Settings</string>
+    <string name="hospital_location">Hospital Location</string>
+    <string name="delete_chat">Delete Chat</string>
+    <string name="hospital_name">Hospital Name</string>
+    <string name="update_appts">Update all Past Shots as Given</string>
+    <string name="vaxLink"><a href="%s">Read More</a></string>
+
 </resources>

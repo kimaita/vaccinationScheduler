@@ -44,6 +44,7 @@ public class ProfileFragment extends Fragment {
     SharedPreferences sharedPreferences;
     DBViewModel viewModel;
     File file;
+    User user = new User();
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -58,6 +59,7 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         sharedPreferences = requireContext().getSharedPreferences(usrCred, Context.MODE_PRIVATE);
         file = new File(getContext().getFilesDir(), usrDetails);
+        user = readUserFile(file);
     }
 
     @Override
@@ -68,6 +70,7 @@ public class ProfileFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(DBViewModel.class);
         btnAddChild = binding.profileAddchildBtn;
         btnLogOUt = binding.profileLogOut;
+        btnDeleteAcct = binding.profileDelete;
         txtViewName = binding.profileName;
         txtViewEmail = binding.profileEmail;
         txtViewPhone = binding.profilePhone;
@@ -84,9 +87,9 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        populateProfile(readUserFile(file));
+        populateProfile(user);
 
-        viewModel.getChildren(readUserFile(file).getDbID()).observe(getViewLifecycleOwner(), children -> mAdapter.submitList(children));
+        viewModel.getChildren(user.getDbID()).observe(getViewLifecycleOwner(), children -> mAdapter.submitList(children));
 
         btnAddChild.setOnClickListener(v -> {
             ProfileFragmentDirections.ActionProfileFragmentToAddChildFragment action =
@@ -101,9 +104,25 @@ public class ProfileFragment extends Fragment {
             editor.putBoolean(usrCredCurrKey, false);
             editor.apply();
             if (!file.delete()) {
-                Snackbar.make(getView(), "Error Occured Clearing Data", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(getView(), "Error Occurred Clearing Data", Snackbar.LENGTH_SHORT).show();
             }
             Navigation.findNavController(getView()).navigate(R.id.action_profileFragment_to_authActivity);
+        });
+
+        btnDeleteAcct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.deleteUser(user.getDbID());
+                SharedPreferences sharedpreferences = getActivity().getSharedPreferences(usrCred, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putBoolean(usrCredCurrKey, false);
+                editor.apply();
+                if (!file.delete()) {
+                    Snackbar.make(getView(), "Error Occured Clearing Data", Snackbar.LENGTH_SHORT).show();
+                }
+                Navigation.findNavController(getView()).navigate(R.id.action_profileFragment_to_authActivity);
+
+            }
         });
     }
 
@@ -113,4 +132,7 @@ public class ProfileFragment extends Fragment {
         txtViewPhone.setText(user.getPhoneNumber());
         txtViewNatID.setText(String.valueOf(user.getNatID()));
     }
+
+
+
 }
